@@ -1,0 +1,16 @@
+.:
+total 70
+-rw-r--r--    1 tyato    Administ     1207 Mar  1  2009 LICENSE
+-rw-r--r--    1 tyato    Administ    16826 Jun 15  2010 README
+-rw-r--r--    1 tyato    Administ     5941 Jun 15  2010 README-pxbabel
+-rw-r--r--    1 tyato    Administ    27572 Jun 15  2010 README-pxcjkcat
+-rw-r--r--    1 tyato    Administ     1472 Mar 14  2008 ifuptex.sty
+-rw-r--r--    1 tyato    Administ        0 Apr 29  2013 ls-lR
+-rw-r--r--    1 tyato    Administ     6937 Jun 15  2010 pxbabel.sty
+-rw-r--r--    1 tyato    Administ    28017 Jul 11  2010 pxbase.def
+-rw-r--r--    1 tyato    Administ     3675 Jun 15  2010 pxbase.sty
+-rw-r--r--    1 tyato    Administ    18189 Jun 15  2010 pxbasenc.def
+-rw-r--r--    1 tyato    Administ      119 Mar 14  2008 pxbsjc.def
+-rw-r--r--    1 tyato    Administ    18247 Jun 15  2010 pxcjkcat.sty
+-rw-r--r--    1 tyato    Administ     6932 Jun 15  2010 pxjsfenc.def
+-rw-r--r--    1 tyato    Administ     2202 Mar 14  2008 upkcat.sty

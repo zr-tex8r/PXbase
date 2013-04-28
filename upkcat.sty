@@ -1,0 +1,50 @@
+%
+% upkcat.sty (for both upLaTeX2e & plain upTeX)
+%
+
+%%%% avoid multiple loading and check if LaTeX2e is used.
+\ifx\pxkqOk\undefined\else \expandafter\endinput \fi
+\edef\pxkqRestoreAt{\catcode64=\the\catcode64\relax}\catcode64=11
+\ifx\RequirePackage\@undefined  % LaTeX2e
+  \NeedsTeXFormat{pLaTeX2e}
+  \ProvidesPackage{upkcat}[2008/03/14 v0.2 safe kcatcode access]
+  \RequirePackage{ifuptex}[2008/03/14]\RequireupTeX
+\fi \let\pxkqOk=t
+
+%%%% \getkcatcode, \setkcatcode
+\edef\skrestoreat{\catcode64=\the\catcode64}\catcode64=11
+\newcount\pxkq@cp \newif\ifpxkq@ok
+\def\getkcatcode#1{\pxkq@getcp{#1}%
+  \edef\thekcatcode{\the\kcatcode\pxkq@cp}}
+\def\setkcatcode#1#2{\pxkq@getcp{#1}\kcatcode\pxkq@cp#2}
+\def\pxkq@getcp#1{\pxkq@getcp@a#1\relax\relax}
+\def\pxkq@nxt#1#2#3#4#5{\pxkq@cp#1\loop
+  {\lccode`\?\pxkq@cp \advance\pxkq@cp-#3%
+   \lowercase{\expandafter\xdef\csname pxkq@#4?\endcsname}{#5}}%
+  \advance\pxkq@cp\@ne \ifnum\pxkq@cp<#2\repeat}
+\pxkq@nxt{240}{248}{240}l{\pxkq@cp\the\pxkq@cp\noexpand\pxkq@da}
+\pxkq@nxt{224}{240}{224}l{\pxkq@cp\the\pxkq@cp\noexpand\pxkq@ca}
+\pxkq@nxt{194}{224}{192}l{\pxkq@cp\the\pxkq@cp\noexpand\pxkq@ba}
+\pxkq@nxt{128}{192}{128}t{\advance\pxkq@cp\the\pxkq@cp\noexpand\pxkq@oktrue}
+\def\pxkq@getcp@a#1{\pxkq@cp`#1\relax\pxkq@chkk#1%
+  \ifpxkq@ok \let\pxkq@nxt\pxkq@end \else
+    \expandafter\let\expandafter\pxkq@nxt\csname pxkq@l\string#1\endcsname
+    \ifx\pxkq@nxt\relax \let\pxkq@nxt\pxkq@err \fi
+  \fi \pxkq@nxt}
+\def\pxkq@stp#1#2{\multiply\pxkq@cp64\pxkq@okfalse
+  \csname pxkq@t\string#2\endcsname
+  \ifpxkq@ok \expandafter#1\else \expandafter\pxkq@err \fi}
+\def\pxkq@end#1\relax{}
+\def\pxkq@ba{\pxkq@stp\pxkq@end}\def\pxkq@ca{\pxkq@stp\pxkq@cb}
+\def\pxkq@cb{\pxkq@stp\pxkq@end}\def\pxkq@da{\pxkq@stp\pxkq@db}
+\def\pxkq@db{\pxkq@stp\pxkq@dc}\def\pxkq@dc{\pxkq@stp\pxkq@end}
+\begingroup\lccode`8=`k\lccode`9=`a \lowercase{\endgroup
+ \def\pxkq@chkk#1{\pxkq@okfalse\expandafter\pxkq@chkk@a\meaning#189\@nil}
+ \def\pxkq@chkk@a#189#2\@nil{\ifcat @#1@\pxkq@oktrue\fi}}
+\def\pxkq@err#1\relax{\errhelp{I regard it as U+FFFF}%
+  \errmessage{Corrupted UTF-8 bytes}\pxkq@cp65535\relax}
+%\def\pxkq@end#1\relax{\showthe\pxkq@cp}
+
+%%%% all done
+\pxkqRestoreAt \endinput
+%% EOF

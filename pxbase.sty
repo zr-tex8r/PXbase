@@ -1,0 +1,129 @@
+%
+% pxbase.sty
+%
+
+%%%% package declaration
+\NeedsTeXFormat{pLaTeX2e}
+\ProvidesPackage{pxbase}[2010/06/15 v0.5 PX base library]
+
+%%%% include prerequisite packages
+\input{pxbase.def}
+\bxBDHookBabel
+\bxBDHookUnicode
+\bxBDHookJisInput
+\bxBDHookSafeCaret
+\RequirePackage{ifuptex}[2008/03/14]
+
+%%%% error messages
+\def\px@pkgname{pxbase}
+\def\px@b@pkgname{PXbase}
+\def\px@error{\PackageError\px@pkgname}
+\def\px@alert{\PackageWarningNoLine\px@pkgname}
+\def\px@warn{\PackageInfo\px@pkgname}
+\def\px@warn@aecs#1{\px@warn{Command \string#1 already exists}}
+
+%%------ Input through code values
+
+%%<*> \Ux, \UI, \AJ
+\ifx\Ux\@undefined \def\Ux{\bxUx}%
+\else \px@warn@aecs\Ux \fi
+\ifx\UI\@undefined \def\UI{\bxUI}%
+\else \px@warn@aecs\UI \fi
+\ifx\AJ\@undefined \def\AJ{\bxAJ}%
+\else \px@warn@aecs\AJ \fi
+
+%%<*> \JI, \KI
+\ifx\JI\@undefined \def\JI{\bxJI}%
+\else \px@warn@aecs\JI \fi
+\ifx\KI\@undefined \def\KI{\bxKI}%
+\else \px@warn@aecs\KI \fi
+
+%%------ kanji-code detection
+
+%%<+> \pxInternalJEnc
+\ifnum\jis"2121="8140\let\pxInternalJEnc=s\else
+\ifnum\jis"2121="A1A1\let\pxInternalJEnc=e\else
+\ifnum\jis"2121="3000\let\pxInternalJEnc=u\else
+  \let\pxInternalJEnc=?\fi\fi\fi
+
+%%<+> \pxSourceJEnc
+\@@input pxbsjc.def\relax
+\def\px@tmpb#1#2\@nil{%
+  \ifnum `#1=\jis"723F\let\pxSourceJEnc=s\else
+  \ifnum `#1=\jis"693D\let\pxSourceJEnc=e\else
+  \ifnum `#1=\jis"7379\let\pxSourceJEnc=u\else
+   \let\pxSourceJEnc=?\fi\fi\fi}
+\expandafter\px@tmpb\px@tmpa\@nil
+
+%%<*> \infojenc
+\def\px@tmpa{%
+  Kanji encoding: source=%
+  \if s\pxSourceJEnc sjis\else\if e\pxSourceJEnc euc%
+  \else\if u\pxSourceJEnc utf8\else?\fi\fi\fi
+  ; internal=%
+  \if s\pxInternalJEnc sjis\else\if e\pxInternalJEnc euc%
+  \else\if u\pxInternalJEnc unicode\else?\fi\fi\fi}
+\edef\infojenc{\noexpand\typeout{\px@tmpa}}
+
+%%------ force ucs 'fasterrors' option to be in effect
+
+%%%% begindocument hook
+\AtBeginDocument{%
+  \@ifpackageloaded{ucs}{%
+    \let\UnicodeOptionfasterrorsfalse\UnicodeOptionfasterrorstrue
+    \UnicodeOptionfasterrorstrue}{}}
+
+%%------ commands about DVI-specials
+
+%%<*> \usejapanesepdfstring
+\if s\pxInternalJEnc
+  \def\usejapanesepdfstring{%  why use CP932??
+    \bxDocumentSpecialUrgent{pdf:tounicode 90ms-RKSJ-UCS2}%
+    \bxNullify\usejapanesepdfstring}
+\else\if e\pxInternalJEnc
+  \def\usejapanesepdfstring{%
+    \bxDocumentSpecialUrgent{pdf:tounicode EUC-UCS2}%
+    \bxNullify\usejapanesepdfstring}
+\else\if u\pxInternalJEnc
+  \def\usejapanesepdfstring{%
+    \px@alert{Japanese PDF strings in upTeX.\MessageBreak
+      You must use upTeX-aware dvipdfmx}%
+    \bxNullify\usejapanesepdfstring}
+\else
+  \def\usejapanesepdfstring{%
+    \px@alert{\string\usejapanesepdfstring\space ignored,\MessageBreak
+      since internal encoding is unknown}%
+    \bxNullify\usejapanesepdfstring}
+\fi\fi\fi
+\@onlypreamble\usejapanesepdfstring
+
+%%------ CJK font scaling
+
+%%<+> \pxDocClassType
+% 1 = pLaTeX standard class
+% 2 = New standard classes by Okumura
+% 0 = otherwise
+\bxUcv=\z@
+\@ifclassloaded{jarticle}{\bxUcv=\@ne}{}
+\@ifclassloaded{jreport}{\bxUcv=\@ne}{}
+\@ifclassloaded{jbook}{\bxUcv=\@ne}{}
+\@ifclassloaded{tarticle}{\bxUcv=\@ne}{}
+\@ifclassloaded{treport}{\bxUcv=\@ne}{}
+\@ifclassloaded{tbook}{\bxUcv=\@ne}{}
+\@ifclassloaded{ujarticle}{\bxUcv=\@ne}{}
+\@ifclassloaded{ujreport}{\bxUcv=\@ne}{}
+\@ifclassloaded{ujbook}{\bxUcv=\@ne}{}
+\@ifclassloaded{utarticle}{\bxUcv=\@ne}{}
+\@ifclassloaded{utreport}{\bxUcv=\@ne}{}
+\@ifclassloaded{utbook}{\bxUcv=\@ne}{}
+\@ifclassloaded{jsarticle}{\bxUcv=\tw@}{}
+\@ifclassloaded{jsbook}{\bxUcv=\tw@}{}
+\chardef\pxDocClassType=\bxUcv
+
+%%<+> \pxUpScale
+\edef\pxUpScale{%
+  \ifcase\pxDocClassType 1\or 0.962216\or 0.924690\else 1\fi}
+
+%%------ all done
+\endinput
+% EOF

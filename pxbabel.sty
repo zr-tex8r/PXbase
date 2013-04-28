@@ -1,0 +1,186 @@
+%
+% pxbabel.sty
+%
+%%%% package declaration
+\NeedsTeXFormat{pLaTeX2e}
+\ProvidesPackage{pxbabel}[2010/06/15 v0.5 PX Babel interface for CJK]
+\RequirePackage{pxbase}
+\safecaret
+\RequirePackage{keyval}
+
+%%%% error message
+\def\pxbb@pkgname{pxbabel}
+\def\pxbb@error{\PackageError\pxbb@pkgname}
+\def\pxbb@warn{\PackageWarningNoLine\pxbb@pkgname}
+\def\pxbb@eha{\MessageBreak I aborted loading it.}
+\def\pxbb@err@nobbl{\pxbb@error
+  {babel is not yet loaded, load aborted}%
+  {This package must be loaded after babel package.}}
+\@onlypreamble\pxbb@err@nobbl
+\def\pxbb@warn@nocjk{\pxbb@warn
+  {No multi-CJK support found, font switch disabled\MessageBreak
+   (I need upTeX-extension or otf package with `multi')}}
+\@onlypreamble\pxbb@warn@nocjk
+
+%%%% \pxbb@foreach@lang\CS
+\def\pxbb@foreach@lang#1{%
+  #1{japanese}#1{korean}#1{schinese}#1{tchinese}}
+
+%%%% keyval settings
+\def\pxbb@setkey{%
+  \edef\pxbb@nxt{\noexpand\setkeys{pxbabel}{\CurrentOption}}%
+  \pxbb@nxt}
+\def\pxbb@do#1{%
+  \define@key{pxbabel}{#1}{\@namedef{pxbb@LN/#1}{##1}}%
+  \@namedef{pxbb@LN/#1}{#1}}
+\pxbb@foreach@lang\pxbb@do
+\define@key{pxbabel}{main}{\def\pxbb@main{#1}}
+\let\pxbb@main\relax
+
+%%%% option handler
+\newif\ifpxbb@switchcaption \pxbb@switchcaptionfalse
+\DeclareOption{switchcaption}{\pxbb@switchcaptiontrue}
+\DeclareOption{noswitchcaption}{\pxbb@switchcaptionfalse}
+\newif\ifpxbb@switchfont \pxbb@switchfonttrue
+\DeclareOption{switchfont}{\pxbb@switchfonttrue}
+\DeclareOption{noswitchfont}{\pxbb@switchfontfalse}
+\newif\ifpxbb@prefermmixjis
+\DeclareOption{prefer2004jis}{\pxbb@prefermmixjistrue}
+\DeclareOption{noprefer2004jis}{\pxbb@prefermmixjisfalse}
+\DeclareOption*{\pxbb@setkey}
+\ProcessOptions*
+
+%%%% \ifpxbb@otfmulti, \ifpxbb@uptex
+%%%% \ifpxbb@pxotf
+\newif\ifpxbb@otfmulti \newif\ifpxbb@pxotf
+\@ifpackageloaded{mlutf}{\pxbb@otfmultitrue}{\pxbb@otfmultifalse}
+\@ifpackageloaded{pxotf}{\pxbb@otfmultitrue\pxbb@pxotftrue}{}
+\newif\ifpxbb@uptex
+\let\ifpxbb@uptex\ifupTeX
+
+%%%% environment check
+\@ifpackageloaded{babel}{}{\pxbb@err@nobbl\endinput}
+\ifpxbb@switchfont \ifpxbb@otfmulti\else \ifpxbb@uptex\else
+    \pxbb@warn@nocjk \fi\fi\fi
+
+%%%% set caption language to 'default'
+\ifpxbb@switchcaption\else
+  \ifx\bx@bbl@captlang\@undefined
+    \bxcaptionlanguage{default}
+\fi\fi
+
+%%------ language declarations
+
+%%%% \pxlanguagename{<langcode>}
+\def\pxlanguagename#1{\@nameuse{pxbb@LN/#1}}
+
+%%%% declare languages
+\def\pxbb@decl@triv@lang#1{%
+  \edef\pxbb@arg{{\@nameuse{pxbb@LN/#1}}}%
+  \expandafter\pxbb@decl@triv@lang@a\pxbb@arg}
+\def\pxbb@decl@triv@lang@a#1{%
+  \expandafter\ifx\csname date#1\endcsname\relax
+    \bxTrivLangDef{#1}\fi}
+\pxbb@foreach@lang\pxbb@decl@triv@lang
+\pxbb@decl@triv@lang@a{cjkmulti}
+\ifx\pxbb@main\relax\else
+  \bxmainlanguage{\pxbb@main}\fi
+\@onlypreamble\pxb@decl@triv@lang
+\@onlypreamble\pxb@decl@triv@lang@a
+
+\ifpxbb@otfmulti %====================== for OTF
+%%------ \UTF switch
+
+%%%% add \UTF switch to Babel \extras
+\ifpxbb@switchfont
+\def\pxbb@addtoextras@otf#1{%
+  \edef\pxbb@arg{{\@nameuse{pxbb@LN/#1}}}%
+  \expandafter\pxbb@addtoextras@otf@a\pxbb@arg}
+\def\pxbb@addtoextras@otf@a#1#2{%
+  \expandafter\addto\csname extras#1\endcsname{%
+    \babel@save\UTF \let\UTF#2}}
+\pxbb@addtoextras@otf{korean}{\UTFK}
+\pxbb@addtoextras@otf{schinese}{\UTFC}
+\pxbb@addtoextras@otf{tchinese}{\UTFT}
+\pxbb@addtoextras@otf@a{cjkmulti}{\UTFM}
+\@onlypreamble\pxbb@addtoextras@otf
+\@onlypreamble\pxbb@addtoextras@otf@a
+\fi % pxbb@switchfont
+
+\fi %=================================== end
+
+\ifupTeX %============================== for upTeX
+%%------ encoding switch according to NFSS
+\bxInputDefFile{pxbasenc}
+\pxBDHookEncSwitchOTF
+
+%%%% declarations for upTeX standatd CJK fonts
+\ifpxbb@pxotf\else
+\pxDeclareBasicCJKEncoding{J20}{J30}% UniJIS
+\pxDeclareBasicCJKFamily{J20}{!upjpnrm-h}{!upjpngt-h}{*gt}{*gt}
+\pxDeclareBasicCJKFamily{J30}{!upjpnrm-v}{!upjpngt-v}{*gt}{*gt}
+\pxDeclareBasicCJKEncoding{J21}{J31}% UniKS
+\pxDeclareBasicCJKFamily{J21}{!upkorrm-h}{!upkorgt-h}{*gt}{*gt}
+\pxDeclareBasicCJKFamily{J31}{!upkorrm-v}{!upkorgt-v}{*gt}{*gt}
+\pxDeclareBasicCJKEncoding{J22}{J32}% UniGB
+\pxDeclareBasicCJKFamily{J22}{!upschrm-h}{!upschgt-h}{*gt}{*gt}
+\pxDeclareBasicCJKFamily{J32}{!upschrm-v}{!upschgt-v}{*gt}{*gt}
+\pxDeclareBasicCJKEncoding{J23}{J33}% UniCNS
+\pxDeclareBasicCJKFamily{J23}{!uptchrm-h}{!uptchgt-h}{*gt}{*gt}
+\pxDeclareBasicCJKFamily{J33}{!uptchrm-v}{!uptchgt-v}{*gt}{*gt}
+\fi
+
+%%%% add font switch to Babel \extras
+\ifpxbb@switchfont
+\def\pxbb@addtoextras#1#2#3{%
+  \edef\pxbb@arg{{\@nameuse{pxbb@LN/#1}}%
+   \if t#2{\noexpand\pxbb@full@ja@enc}{\noexpand\@undefined}%
+   \else{#3}{t}\fi}%
+  \expandafter\pxbb@addtoextras@a\pxbb@arg}
+\def\pxbb@addtoextras@a#1#2#3{%
+  \expandafter\addto\csname extras#1\endcsname{%
+    \pxbb@set@full@ja@enc \let\pxInNonJaLanguage=#3%
+    \let\pxbb@org@encoding\cy@encoding
+    \kanjiencoding{#2}\selectfont}%
+  \expandafter\addto\csname noextras#1\endcsname{%
+    \let\pxInNonJaLanguage\@undefined
+    \kanjiencoding{\pxbb@org@encoding}\selectfont}}
+\pxbb@addtoextras{japanese}{t}{}
+\pxbb@addtoextras{korean}{f}{J21}
+\pxbb@addtoextras{schinese}{f}{J22}
+\pxbb@addtoextras{tchinese}{f}{J23}
+\@onlypreamble\pxbb@addtoextras
+\@onlypreamble\pxbb@addtoextras@a
+%% \pxbb@set@full@ja@enc
+\edef\pxbb@dflt@ja@enc{\ifpxbb@prefermmixjis J24\else J20\fi}
+\@namedef{pxbb@SFJE/J20}{\def\pxbb@full@ja@enc{J20}}
+\@namedef{pxbb@SFJE/J24}{\def\pxbb@full@ja@enc{J24}}
+\def\pxbb@set@full@ja@enc{%
+  \let\pxbb@full@ja@enc\pxbb@dflt@ja@enc
+  \csname pxbb@SFJE/\cy@encoding\endcsname}
+\fi % pxbb@switchfont
+
+\fi %=================================== end
+
+%%------ all done
+\endinput
+%% EOF
+
+%
+%   Roman, H      Gothic, H     Roman, V      Gothic, H     : metric encod.
+%   ------------  ------------  ------------  ------------  : ------ --------
+%   umin10        ugoth10       utmin10       utgoth10      : min10  JIS-old 
+%   ujis          ujisg         ujis-v        ujisg-v       : jis    JIS-old 
+%   ujisn         ujisng        ujisn-v       ujisng-v      : jisn   JIS-old 
+% * urml          ugbm          urmlv         ugbmv         : RAW    JIS-old 
+%   upjisr-h      upjisg-h      upjisr-v      upjisg-v      : upjpn  JIS-bmp 
+%   upjisr-hq     upjisg-hq                                 : upjpn  JIS-old 
+%   upjpnrm-h     upjpngt-h     upjpnrm-v     upjpngt-v     : upjpn  JIS-full
+% * uprml         upgbm         uprmlv        upgmbv        : RAW    JIS-bmp 
+% * uprmlq        upgbmq                                    : RAW    JIS-old 
+%   upkorrm-h     upkorgt-h     upkorrm-v     upkorgt-v     : upkor  KS      
+% * uphysmjm-h    uphygt-h      uphysmjm-v    uphygt-v      : RAW    KS      
+%   upschrm-h     upschgt-h     upschrm-v     upschgt-v     : upsch  GB      
+% * upstsl-h      upstht-h      upstsl-v      upstht-v      : RAW    GB      
+%   uptchrm-h     uptchgt-h     uptchrm-v     uptchgt-v     : uptch  CNS     
+% * upmsl-h       upmhm-h       upmsl-v       upmhm-v       : RAW    CNS     

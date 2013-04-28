@@ -1,0 +1,483 @@
+%
+% pxbasenc.def
+%
+%%%% file declaration
+\NeedsTeXFormat{pLaTeX2e}
+\ProvidesFile{pxbasenc.def}[2010/05/05 v0.5 PX encoding library]
+
+%%%% preparation
+\RequirePackage{ifuptex}
+%\def\pxec@b@pkgname{PXbase}
+\def\pxec@error{\PackageError\px@b@pkgname}
+\def\pxec@err@irfam#1{\pxec@error
+  {Encodings '\pxec@tmpa' redefined inconsistently}\@ehc}
+\def\pxec@err@ukjsf{\pxec@error
+  {'\k@encoding' is not valid as JSF encoding}\@ehc}
+\edef\pxec@resetcatcode{} % nothing for the present
+\ifx\bxUcv\@undefined
+\newcount\bxUcv
+\fi
+\newif\ifpxec@ok
+\newif\ifpxec@sw
+\newif\ifpxec@star
+
+%%------------------ CJK font declarations
+
+%%%% obtain error kanji font setting
+%    for use as 'safe font setting'
+\bgroup \escapechar\m@ne \error@kfontshape
+  \expandafter\let\expandafter\pxec@tenc
+    \csname t@enc@\f@encoding\endcsname
+  \xdef\pxec@safe@jfontspec
+    {{\f@encoding}{\pxec@tenc}{\f@family}{\f@series}{\f@shape}}%
+  \global\expandafter\let\expandafter\pxec@safe@y@decl
+    \csname \f@encoding/\f@family/\f@series/\f@shape\endcsname
+  \global\expandafter\let\expandafter\pxec@safe@t@decl
+    \csname \pxec@tenc/\f@family/\f@series/\f@shape\endcsname
+\egroup
+
+%% \pxec@starinvoke\SOMECS
+\def\pxec@starinvoke#1{%
+  \@ifstar{\pxec@startrue#1}{\pxec@starfalse#1}}
+
+%%<+> \pxDeclareCJKEncoding[*]{<h-enc>}{<v-enc>}
+% *-form uses 'safety fonts' as subtitution.
+\@onlypreamble\pxDeclareCJKEncoding
+\def\pxDeclareCJKEncoding{%
+  \pxec@starinvoke\pxec@DeclareCJKEncoding}
+\@onlypreamble\pxDeclareBasicCJKEncoding
+\let\pxDeclareBasicCJKEncoding\pxDeclareCJKEncoding
+\def\pxec@DeclareCJKEncoding#1#2{%
+  \pxec@check@prior@decl{#1}{#2}%
+  \ifbxOk
+    \edef\pxec@args{{#1}{#2}}%
+    \expandafter\pxec@decl@cjkenc@a\pxec@args
+  \fi}
+\@onlypreamble\pxec@decl@cjkenc@a
+\def\pxec@decl@cjkenc@a#1#2{%
+  \DeclareYokoKanjiEncoding{#1}{}{}%
+  \DeclareTateKanjiEncoding{#2}{}{}%
+  \KanjiEncodingPair{#1}{#2}%
+  \ifpxec@star
+    \expandafter\pxec@decl@cjkenc@b\pxec@safe@jfontspec{#1}{#2}%
+  \else
+    \DeclareKanjiSubstitution{#1}{mc}{m}{n}%
+    \DeclareKanjiSubstitution{#2}{mc}{m}{n}%
+  \fi}
+\@onlypreamble\pxec@decl@cjkenc@b
+\def\pxec@decl@cjkenc@b#1#2#3#4#5#6#7{%
+  \DeclareKanjiFamily{#6}{ferr}{}%
+  \DeclareKanjiSubstitution{#6}{ferr}{#4}{#5}%
+  \expandafter\let\csname#6/ferr/#4/#5\endcsname\pxec@safe@y@decl
+  \DeclareKanjiFamily{#7}{ferr}{}%
+  \DeclareKanjiSubstitution{#7}{ferr}{#4}{#5}%
+  \expandafter\let\csname#7/ferr/#4/#5\endcsname\pxec@safe@t@decl}
+
+%% \pxec@check@prior@decl{<h-enc>}{<v-enc>}
+\@onlypreamble\pxec@check@prior@decl
+\def\pxec@check@prior@decl#1#2{%
+  \bxOktrue \def\pxec@tmpa{#1/#2}%
+  {% check if encodings '#1' and '#2' are declared
+    \count@=0\expandafter\ifx\csname T@#1\endcsname\relax\else1\fi
+    \expandafter\ifx\csname T@#2\endcsname\relax\else1\fi\relax
+    \ifnum\count@=\z@ \relax % neither declared, OK
+    \else\ifnum\count@=\@ne % exactly one declared, NG
+      \aftergroup\pxec@error@prior@decl
+    \else                   % both declared
+      \edef\pxec@y{#1}\edef\pxec@ty{\@nameuse{y@enc@#2}}%
+      \edef\pxec@t{#2}\edef\pxec@yt{\@nameuse{t@enc@#1}}%
+      \ifx\pxec@y\pxec@ty \ifx\pxec@t\pxec@yt \count@\z@ \fi\fi
+      \ifnum\count@=\z@ \aftergroup\bxOkfalse
+      \else \aftergroup\pxec@error@prior@decl \fi
+    \fi\fi}% after this \pxec@error@prior@decl may be called
+}
+\def\pxec@error@prior@decl{\pxec@err@irfam\pxec@tmpa\bxOkfalse}
+
+%%<+> \pxDeclareBasicCJKFamily[*]{<enc>}{<mc-m>}{<gt-m>}{<mc-bx>}{<gt-bx>}
+% Declares the two most basic CJK family, mc (mincho) and gt (gothic),
+% along with the most basic shapes m/n and bx/n for each of them.
+% *-form means the same as \bxDeclareBasicCJKShape.
+\@onlypreamble\pxDeclareBasicCJKFamily
+\def\pxDeclareBasicCJKFamily{%
+  \pxec@starinvoke\pxec@DeclareBasicCJKFamily}
+\@onlypreamble\pxec@DeclareBasicCJKFamily
+\def\pxec@DeclareBasicCJKFamily#1#2#3#4#5{%
+  \pxec@DeclareExtraCJKFamily{#1}{mc}{#2}{#4}%
+  \pxec@DeclareExtraCJKFamily{#1}{gt}{#3}{#5}}
+
+%%<+> \pxDeclareExtraCJKFamily[*]{<enc>}{<fam>}{<font-m>}{<font-bx>}
+\@onlypreamble\pxDeclareExtraCJKFamily
+\def\pxDeclareExtraCJKFamily{%
+  \pxec@starinvoke\pxec@DeclareExtraCJKFamily}
+\@onlypreamble\pxec@DeclareBasicCJKFamily
+\def\pxec@DeclareExtraCJKFamily#1#2#3#4{%
+  \DeclareKanjiFamily{#1}{#2}{}%
+  \pxec@DeclareBasicCJKShape{#1}{#2}{m}{#3}%
+  \pxec@DeclareBasicCJKShape{#1}{#2}{bx}{#4}}
+
+%% \pxec@DeclareBasicShapeSet[*]{<enc>}{<fam>}{<font-m>}{<font-bx>}
+% (private command used for JSF fonts)
+\@onlypreamble\pxec@DeclareBasicShapeSet
+\def\pxec@DeclareBasicShapeSet{%
+  \pxec@starinvoke\pxec@@DeclareBasicShapeSet}
+\@onlypreamble\pxec@@DeclareBasicShapeSet
+\def\pxec@@DeclareBasicShapeSet#1#2#3#4{%
+  \pxec@DeclareBasicCJKShape{#1}{#2}{m}{#3}%
+  \pxec@DeclareBasicCJKShape{#1}{#2}{bx}{#4}}
+
+%%<+> \pxDeclareBasicCJKFallback{<enc>}{<fam>}{<ser>}
+\def\pxDeclareBasicCJKFallback#1#2#3{%
+  \@for\pxec@x:={it,sl,sc}\do{%
+    \pxDeclareFontShape{#1}{#2}{#3}{\pxec@x}{<->ssub*#2/#3/n}}}
+
+%%<+> \pxDeclareBasicCJKShape[*]{<enc>}{<fam>}{<ser>}{<font>}
+% Declares the font for 'n'-shape. *-form does not set
+% substitution for shapes 'it', 'sl', 'sc'.
+\@onlypreamble\pxDeclareBasicCJKShape
+\def\pxDeclareBasicCJKShape{%
+  \pxec@starinvoke\pxec@DeclareBasicCJKShape}
+\@onlypreamble\pxec@DeclareBasicCJKShape
+\def\pxec@DeclareBasicCJKShape#1#2#3#4{%
+  \edef\pxec@args{{#1}{#2}{#3}{#4}}%
+  \expandafter\pxec@decl@bas@cjkshape@a\pxec@args}
+\@onlypreamble\pxec@decl@bas@cjkshape@a
+\def\pxec@decl@bas@cjkshape@a#1#2#3#4{%
+  \pxDeclareCJKShape{#1}{#2}{#3}{n}{#4}%
+  \ifpxec@star\else \pxDeclareBasicCJKFallback{#1}{#2}{#3}\fi}
+
+%%<+> \pxDeclareCJKShape{<enc>}{<fam>}{<ser>}{<shape>}{<font>}
+% Declares a single font shape. Here <font> is a font spec
+% or a fontsubst form.
+\@onlypreamble\pxDeclareCJKShape
+\def\pxDeclareCJKShape#1#2#3#4#5{%
+  \edef\pxec@args{{#1}{#2}{#3}{#4}{\pxFontSubst{#5}}}%
+  \expandafter\pxec@decl@cjkshape@a\pxec@args}
+\@onlypreamble\pxec@decl@cjkshape@a
+\def\pxec@decl@cjkshape@a#1#2#3#4#5{%
+  \pxDeclareFontShape{#1}{#2}{#3}{#4}{<->#5}}
+
+%%<+> \pxDefineFontSubst{<sym>}{<text>}
+% Defines a 'fontsubst' with name <sym>. After its call,
+% \pxFontSubst{*<sym>} will expand to <text>.
+% N.B. A fontsubst must be fully-expandable.
+%%<+> \pxFontSubst{<spec>}
+% Resolves a 'fontsubst' and expands to the resulted text. That is,
+%   - <spec> of form !<text> expands to s*[<value>]<text>, where
+%     <value> is the standard scale factor defined in \pxUpScale.
+%   - <spec> of fotm *<text> expands to the definition of 'fontsubst'
+%     with name <text>.
+%   - <spec> of other form is left unchanged.
+\@onlypreamble\pxDefineFontSubst
+\def\pxDefineFontSubst#1{\@namedef{pxec@font*#1}}
+\@onlypreamble\pxFontSubst
+\def\pxFontSubst#1{\pxec@fontsubst@a#1\@nil}
+\@onlypreamble\pxec@fontsubst@a
+\def\pxec@fontsubst@a#1#2\@nil{%
+  \if!#1s*[\pxUpScale]#2%
+  \else\if*#1\@nameuse{pxec@font*#2}\else#1#2\fi\fi}
+% define some fontsubsts
+\pxDefineFontSubst{mc}{ssub*mc/m/n}
+\pxDefineFontSubst{gt}{ssub*gt/m/n}
+
+%%<+> \pxDeclareSimpleShape{<enc>}{<fam>}{<ser>}{<shape>}{<font>}
+% An alias of \pxDeclareCJKShape for compatibility.
+\@onlypreamble\pxDeclareSimpleShape
+\let\pxDeclareSimpleShape\pxDeclareCJKShape
+
+%%<+> \pxDeclareExtraCJKShapeBF{<enc>}{<shape>}
+%%     {<mc-m>}{<gt-m>}{<mc-bx>}{<gt-bx>}
+\def\pxDeclareExtraCJKShapeBF#1#2#3#4#5#6{%
+  \pxDeclareCJKShape{#1}{mc}{m}{#2}{#3}%
+  \pxDeclareCJKShape{#1}{gt}{m}{#2}{#4}%
+  \pxDeclareCJKShape{#1}{mc}{bx}{#2}{#5}%
+  \pxDeclareCJKShape{#1}{gt}{bx}{#2}{#6}}
+
+
+%%------------------ passive \DeclareFontShape
+
+%%<+> \pxForceFontDeclaration
+% Takes either of the following values and decides what to do
+% when the font shape is already declared.
+%  t : Overwrites declaration.
+%  f : Skips declaration.
+%  e : Displays an error.
+% It should be t except when other values are needed.
+\let\pxForceFontDeclaration=t
+
+%%<+> \pxDeclareFontShape{<enc>}{<fam>}{<ser>}{<shape>}{<spec>}
+\def\pxDeclareFontShape#1#2#3#4#5{%
+  \expandafter\ifx\csname #1/#2/#3/#4\endcsname\relax
+    \DeclareFontShape{#1}{#2}{#3}{#4}{#5}{}%
+  \else\if e\pxForceFontDeclaration
+    \pxec@error{Font shape #1/#2/#3/#4 already defined}\@ehc
+  \else\if f\pxForceFontDeclaration\else
+    \pxUndeclareFontShape{#1}{#2}{#3}{#4}%
+    \DeclareFontShape{#1}{#2}{#3}{#4}{#5}{}%
+  \fi\fi\fi}
+
+%%<+> \pxUndeclareFontShape{<enc>}{<fam>}{<ser>}{<shape>}
+\def\pxUndeclareFontShape#1#2#3#4{%
+  \expandafter\let\csname #1/#2/#3/#4\endcsname\@undefined
+  \@tfor\pxec@y:=\@vpt\@vipt\@viipt\@viiipt\@ixpt\@xpt
+    \@xipt\@xiipt\@xivpt\@xviipt\@xxpt\@xxvpt\do
+    {\expandafter\let\csname #1/#2/#3/#4/\pxec@y\endcsname\@undefined}}
+
+%%------------------- CJK named encodings
+
+%%<+> \pxDeclareEncodingDispatcher{<enc_name>}{<text>}
+\@onlypreamble\pxDeclareEncodingDispatcher
+\def\pxDeclareEncodingDispatcher#1{%
+  \expandafter\pxec@decl@enc@dispat@a\csname pxec@ED/#1\endcsname}
+\def\pxec@decl@enc@dispat@a#1{\@onlypreamble#1\def#1}
+
+%%<+> \pxDispatchEncodings{<enc_name>,...}
+\@onlypreamble\pxDispatchEncodings
+\def\pxDispatchEncodings#1{%
+  \@for\pxec@x:={#1}\do{%
+    \ifx\pxec@x\@empty\else
+      \expandafter\pxec@dispat@enc@a\csname pxec@ED/\pxec@x\endcsname
+      \expandafter\let\csname pxec@EA/\pxec@x\endcsname=t\relax
+    \fi}}
+\def\pxec@dispat@enc@a#1{#1\let#1\relax}
+
+%%<+> \pxIsEncodingDispatched{<enc_name>}
+\def\pxIsEncodingDispatched#1{%
+  1\expandafter\ifx\csname pxec@EA/#1\endcsname\relax
+    \expandafter0\else\expandafter1\fi}
+
+%%<+> \pxBothEncodingsFromName\CSyoko\CState{<enc_name>}
+%%<+> \pxEncodingFromName{<enc_name>}
+%%<+> \pxTateEncodingFromName{<enc_name>}
+\def\pxBothEncodingsFromName#1#2#3{%
+  \expandafter\let\expandafter#1\csname pxec@EY/#3\endcsname
+  \expandafter\let\expandafter#2\csname pxec@ET/#3\endcsname}
+\def\pxEncodingFromName#1{\csname pxec@EY/#1\endcsname}
+\def\pxTateEncodingFromName#1{\csname pxec@ET/#1\endcsname}
+
+%%<+> \pxSetEncodingName{<enc_name>}{<h_enc>}{<v_enc>}
+\@onlypreamble\pxSetEncodingName
+\def\pxSetEncodingName#1#2#3{%
+  \@namedef{pxec@EY/#1}{#2}\@namedef{pxec@ET/#1}{#3}}
+
+%%------ font declarations using named encodings
+
+%%<+> \pxec@supdef\SOMECS{<text1>}{<text2>}
+% Define \SOMECS to be <text1> if <text1> is non-empty,
+% otherwise <text2>.
+\def\pxec@supdef#1#2#3{%
+  \def#1{#2}\ifx#1\@empty \def#1{#3}\fi}
+
+%%<+> \pxDeclareCJKEncodingNE[*]{<enc_name>}
+\@onlypreamble\pxDeclareCJKEncodingNE
+\def\pxDeclareCJKEncodingNE{%
+  \pxec@starinvoke\pxec@DeclareCJKEncodingNE}
+\def\pxec@DeclareCJKEncodingNE#1{%
+  \pxBothEncodingsFromName\pxec@y\pxec@t{#1}%
+  \pxec@DeclareCJKEncoding\pxec@y\pxec@t}
+
+%%<+> \pxDeclareExtraCJKFamilyNE[*]
+%%      {<enc-name>}{<fam>}{<h-m>}{<h-bx>}{<v-m>}{<v-bx>}
+\@onlypreamble\pxDeclareExtraCJKFamilyNE
+\def\pxDeclareExtraCJKFamilyNE{%
+  \pxec@starinvoke\pxec@DeclareExtraCJKFamilyNE}
+\@onlypreamble\pxec@DeclareBasicCJKFamilyNE
+\def\pxec@DeclareExtraCJKFamilyNE#1#2#3#4#5#6{%
+  \pxBothEncodingsFromName\pxec@y\pxec@t{#1}%
+  \DeclareKanjiFamily{\pxec@y}{#2}{}%
+  \pxec@DeclareBasicCJKShape{\pxec@y}{#2}{m}{#3}%
+  \pxec@DeclareBasicCJKShape{\pxec@y}{#2}{bx}{#4}%
+  \DeclareKanjiFamily{\pxec@t}{#2}{}%
+  \pxec@supdef\pxec@vm{#5}{#3}\pxec@supdef\pxec@vb{#6}{#4}%
+  \pxec@DeclareBasicCJKShape{\pxec@t}{#2}{m}{\pxec@vm}%
+  \pxec@DeclareBasicCJKShape{\pxec@t}{#2}{bx}{\pxec@vb}}
+
+%%<+> \pxDeclareBasicCJKShapeNE[*]
+%%     {<enc-name>}{<fam>}{<ser>}{<h-font>}{<v-font>}
+% Declares the font shape for 'n'-shape. *-form does not set
+% substitution for shapes 'it', 'sl', 'sc'.
+\@onlypreamble\pxDeclareBasicCJKShapeNE
+\def\pxDeclareBasicCJKShapeNE{%
+  \pxec@starinvoke\pxec@DeclareBasicCJKShapeNE}
+\@onlypreamble\pxec@DeclareBasicCJKShapeNE
+\def\pxec@DeclareBasicCJKShapeNE#1#2#3#4#5{%
+  \pxBothEncodingsFromName\pxec@y\pxec@t{#1}%
+  \pxec@supdef\pxec@z{#5}{#4}%
+  \pxec@DeclareBasicCJKShape\pxec@y{#2}{#3}{#4}%
+  \pxec@DeclareBasicCJKShape\pxec@t{#2}{#3}{\pxec@z}}
+
+%%<+> \pxDeclareCJKShapeNE
+%%      {<enc_name>}{<fam>}{<ser>}{<shape>}{<h_font>}{<v_font>}
+\@onlypreamble\pxDeclareCJKShapeNE
+\def\pxDeclareCJKShapeNE#1#2#3#4#5#6{%
+  \pxBothEncodingsFromName\pxec@y\pxec@t{#1}%
+  \pxec@supdef\pxec@z{#6}{#5}%
+  \pxDeclareCJKShape\pxec@y{#2}{#3}{#4}{#5}%
+  \pxDeclareCJKShape\pxec@t{#2}{#3}{#4}{\pxec@z}}
+
+%%------------------- JSF encodings
+
+%%<+> \pxDeclareJSFEncoding{<h-enc>}{<v-enc>}{<sfid>,...}
+\def\pxDeclareJSFEncoding#1#2#3{%
+  \pxDeclareBasicCJKEncoding*{#1}{#2}%
+  \expandafter\edef\csname pxec@ZL/#1\endcsname{#3}%
+  \expandafter\let\csname pxec@ZL/#2\expandafter\endcsname
+   \csname pxec@ZL/#1\endcsname}
+
+%%<+> \DeclareJSFFamily{<enc>}{<fam>}[<sfid>,...]{<body>}
+%%<+> \AppendToJSFFamily{<enc>}{<fam>}[<sfid>,...]{<body>}
+\def\DeclareJSFFamily{\pxec@starfalse\pxec@DeclareJSFFamily}
+\def\AppendToJSFFamily{\pxec@startrue\pxec@DeclareJSFFamily}
+\def\pxec@DeclareJSFFamily#1#2{%
+  \edef\pxec@djf@enc{#1}\edef\pxec@djf@fam{#2}%
+  \expandafter\let\expandafter\pxec@sfidlst\csname pxec@ZL/#1\endcsname
+  \@ifnextchar[%
+   \pxec@decl@jsf@fam@a{\pxec@decl@jsf@fam@b\relax}}
+\def\pxec@decl@jsf@fam@a[#1]{%
+  \pxec@decl@jsf@fam@b{\edef\pxec@sfidlst{#1}}}
+\def\pxec@decl@jsf@fam@b#1{%
+  \ifx\pxec@sfidlst\relax \pxec@err@ukjsf
+  \else #1\expandafter\pxec@decl@jsf@fam@c \fi}
+\def\pxec@decl@jsf@fam@c{%
+  \afterassignment\pxec@decl@jsf@fam@d\def\pxec@djf@body##1##2}
+\def\pxec@decl@jsf@fam@d{%
+  \ifpxec@star\else
+    \DeclareKanjiFamily{\pxec@djf@enc}{\pxec@djf@fam=Z}{\relax}\fi
+  \edef\pxec@nxt{\noexpand\@for\noexpand\pxec@djf@x:=\pxec@sfidlst}%
+  {\pxec@nxt\do{\pxec@decl@jsf@fam@do}}}
+\def\pxec@decl@jsf@fam@do{%
+  \global\expandafter\let\csname
+    pxec@Z/\pxec@djf@enc/\pxec@djf@fam/\pxec@djf@x\endcsname=t%
+  \edef\pxec@famx{\pxec@djf@fam=Z\pxec@djf@x}%
+  \DeclareKanjiFamily{\pxec@djf@enc}{\pxec@famx}{}%
+  \bxDebug{font family \pxec@famx\space loaded}%
+  \edef\JSFBasicShapeSet{\pxec@djf@starinvoke\pxec@JSFBasicShapeSet}%
+  \edef\JSFFallback{\pxec@djf@invoke\pxec@JSFFallback}%
+  \edef\JSFBasicShape{\pxec@djf@starinvoke\pxec@JSFBasicShape}%
+  \edef\JSFShape{\pxec@djf@starinvoke\pxec@JSFShape}%
+  \pxec@djf@body\pxec@djf@x\pxec@djf@fam}
+\def\pxec@djf@invoke#1{\noexpand#1{\pxec@djf@enc}{\pxec@famx}}
+\def\pxec@djf@starinvoke#1{\noexpand\pxec@starinvoke\pxec@djf@invoke#1}
+
+%%%% commands used inside \DeclareJSFFamily
+
+%%<+> \JSFBasicShapeSet[*]{<font-m-n>}{<font-bx-n>}
+\def\pxec@JSFBasicShapeSet{\pxec@DeclareBasicShapeSet}
+
+%%<+> \JSFFallback{<ser>}
+\def\pxec@JSFFallback{\pxDeclareBasicCJKFallback}
+
+%%<+> \JSFBasicShape[*]{<ser>}{<font-n>}
+\def\pxec@JSFBasicShape{\pxDeclareBasicCJKShape}
+
+%%<+> \JSFShape[*]{<ser>}{<shape>}{<font>}
+\def\pxec@JSFShape{%
+  \ifpxec@star \expandafter\pxDeclareFontShape
+  \else \expandafter\pxDeclareCJKShape \fi}
+
+%%<+> \JSFShapeRaw{<ser>}{<shape>}{<spec>}
+\def\pxec@JSFShapeRaw{\pxDeclareFontShape}
+
+%%------------------ basic encodings
+
+%%%% the standard Japanese encodings
+\ifnativeupTeX
+\def\pxStdYEnc{JY2}\def\pxStdTEnc{JT2}
+\else
+\def\pxStdYEnc{JY1}\def\pxStdTEnc{JT1}
+\fi
+
+%%%% encoding name 'standard' for standard encodings
+\edef\pxec@args{{standard}{\pxStdYEnc}{\pxStdTEnc}}
+\expandafter\pxSetEncodingName\pxec@args
+
+%%%% user interfaces
+
+%%<*> \selectjaencoding{<enc_name>}
+\DeclareRobustCommand*\selectjaencoding[1]{%
+  \edef\pxec@tmpa{\pxEncodingFromName{#1}}%
+  \pxec@selectjaencoding\pxec@tmpa \ignorespaces}
+
+%%<*> \normaljaencoding
+\DeclareRobustCommand*\normaljaencoding{%
+  \pxec@selectjaencoding\kanjiencodingdefault}
+
+%%<*> \standardjaencoding
+\DeclareRobustCommand*\standardjaencoding{%
+  \pxec@selectjaencoding\pxStdYEnc}
+
+%% \pxec@selectjaencoding{<enc>}
+% Adjustment for pxbabel.
+\def\pxec@selectjaencoding#1{%
+  \ifx\pxInNonJaLanguage\@undefined \kanjiencoding{#1}\selectfont\fi
+  \ifx\pxbb@org@encoding\@undefined\else \edef\pxbb@org@encoding{#1}\fi}
+
+%%%% declarations for basic Japanese encodings
+
+\ifnativeupTeX      %<upTeX>
+
+%% J20, J30 : 2000jis
+\pxSetEncodingName{2000jis}{J20}{J30}
+\pxDeclareEncodingDispatcher{2000jis}{\pxDeclareCJKEncodingNE{2000jis}}
+
+%% J24, J34 : 2004jis
+\pxSetEncodingName{2004jis}{J24}{J34}
+\pxDeclareEncodingDispatcher{2004jis}{\pxDeclareCJKEncodingNE{2004jis}}
+
+\else               %<pTeX>
+
+%% J00, J10 : 78jis
+\pxSetEncodingName{78jis}{J00}{J10}
+\pxDeclareEncodingDispatcher{78jis}{\pxDeclareCJKEncodingNE{78jis}}
+
+% It is assumed that the standard encodings (JY1/JT1) have 83JIS form.
+% Thus the encoding '83jis' will not be used.
+%% J01, J11 : 83jis
+%\pxSetEncodingName{83jis}{J01}{J11}
+%\pxDeclareEncodingDispatcher{83jis}{\pxDeclareCJKEncodingNE{83jis}}
+
+% The name "J02/J12' is intended to mean 90JIS (= 97JIS), but Adobe does
+% not distinguish 90JIS from 83JIS. So I will make no distinction between
+% then either.
+
+% The fonts for standard families (mc & gt) in '2000jis' encoding are not
+% provided together with PXfontspec bundle, so this encoding is not ready
+% for use unless the appropriate fonts (jfms) are prepared.
+%% J03, J13 : 2000jis
+\pxSetEncodingName{2000jis}{J03}{J13}
+\pxDeclareEncodingDispatcher{2000jis}{\pxDeclareCJKEncodingNE{2000jis}}
+
+%% J04, J14 : 2004jis
+\pxSetEncodingName{2004jis}{J04}{J14}
+\pxDeclareEncodingDispatcher{2004jis}{\pxDeclareCJKEncodingNE{2004jis}}
+
+%% J08, J18 : winj (CP932)
+\pxSetEncodingName{winj}{J08}{J18}
+\pxDeclareEncodingDispatcher{winj}{\pxDeclareCJKEncodingNE{winj}}
+
+\fi                 %</upTeX>
+
+%%------------------ patches to OTF/UTF packages
+
+%%%% make \CID work in nonstandard CJK encodings
+% \UTF & \CID require the current encoding to be the standard one, thus
+% they won't work well along with packages that change Japanese encoding
+% (pxfontenc, pxbabel, etc.). This patch resolves this problem.
+\providecommand*\pxBDHookEncSwitchOTF{\pxec@bdhook@encswotf@do}
+\@onlypreamble\pxec@bdhook@encswotf@do
+\def\pxec@bdhook@encswotf@do{%
+  \AtBeginDocument{%
+    \@ifpackageloaded{otf}{\let\pxec@JYn\otf@JYn}{}%
+    \@ifpackageloaded{utf}{\let\pxec@JYn\utf@JYn}{}%
+    \ifx\pxec@JYn\@undefined\else
+      % hook at the \set@character invocation, so that encoding will
+      % be forced to be the standard one
+      \long\def\set@character{% \long, as the original is
+        \afterassignment\pxec@put@character\@tempcnta}%
+      \def\pxec@put@character{\kanjiencoding{\pxec@JYn}\put@character}%
+    \fi}%
+  \let\pxBDHookEncSwitchOTF\@empty}% nullify
+
+%%------------------ all done
+\pxec@resetcatcode
+\endinput
+%% EOF

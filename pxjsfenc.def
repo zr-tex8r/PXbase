@@ -1,0 +1,195 @@
+%
+% pxjsfenc.def
+%
+%%%% file declaration
+\NeedsTeXFormat{pLaTeX2e}
+\ProvidesFile{pxjsfenc.def}[2010/05/05 v0.5 PX JSF encoding]
+
+%%%% preparation
+\RequirePackage{pxbase}
+\bxInputDefFile{pxbasenc}
+% common with pxbasenc
+%\def\pxec@b@pkgname{PXbase}
+%\def\pxec@error{\PackageError\px@b@pkgname}
+%
+\edef\pxec@jsf@resetcatcode{\catcode34=\the\catcode34\relax}
+\catcode34=12  %<">
+\newif\ifpxec@hyperref % true if hyperref patch is invoked
+
+%%------ main module
+
+%% \pxec@declare@jsf@gen{<name>}{<enc>}{<ext>}
+\def\pxec@declare@jsf@ucs{\pxec@swtrue\pxec@declare@jsf@a}
+\def\pxec@declare@jsf@cid{\pxec@swfalse\pxec@declare@jsf@a}
+\def\pxec@declare@jsf@a#1{% {<name>} | {<enc>}{<ext>}
+  \expandafter\pxec@declare@jsf@b\csname#1\expandafter\endcsname
+   \csname pxUcv#1\expandafter\endcsname
+   \csname pxec@E@#1\expandafter\endcsname
+   \csname pxec@ext@#1\endcsname{#1}}
+\def\pxec@declare@jsf@b#1#2#3#4#5#6#7{%
+    % \[<name>]\[pxUcv<name>]\[pxec@E@<name>]\[pxec@ext@<name>]
+    % {<name>}{<enc>}{<ext>}
+  \ifpxec@sw \DeclareRobustCommand{#1}[1]{%
+              \uppercase{\bxUcv="##1}\pxec@out@jsf#3#4}%
+  \else \DeclareRobustCommand{#1}[1]{%
+         \uppercase{\bxUcv=##1}\pxec@out@jsf#3#4}%
+  \fi
+  \def#2{\pxec@out@jsf#3#4}\def#3{#6}%
+  \ifpxec@sw \pxec@addto@hyref@patch{#5}\fi
+  \ifx @#7@\else\bxUseShadowMap#4{#7}\fi}
+%% hyperref patch
+\def\pxec@hyref@patch{\pxec@hyperreftrue}
+\AtBeginDocument{\@ifpackageloaded{hyperref}{\pxec@hyref@patch}{}}
+\def\pxec@addto@hyref@patch#1{% {<name>}
+  \expandafter\pxec@addto@hyref@patch@a\csname#1\expandafter\endcsname
+   \csname pxec@hy@#1\expandafter\endcsname\csname#1 \endcsname}
+\def\pxec@addto@hyref@patch@a#1#2#3{%
+    % \[<name>]\[pxec@hy@<name>]\[<name> ]
+  \g@addto@macro\pxec@hyref@patch{\def#1{\protect#2}%
+    \def#2##1{\ifHy@pdfstring\0x##1\else#3{##1}\fi}}}
+
+%% define \UTF command
+% \pxec@E@UTF (second argument) will be \let'd to be either
+% \pxec@E@UTF@a or \pxec@E@UTF@b.
+% Note that pxbabel package \let's \UTF be \UTFK, etc. when
+% a CJK language is in effect.
+\pxec@declare@jsf@ucs{UTF}{J20}{sm-pxot-ja}
+
+%% \pxSwitchUTFCommand
+\def\pxSwitchUTFCommand#1{\csname pxec@SWU/#1\endcsname}
+\@namedef{pxec@SWU/2000jis}{\let\pxec@E@UTF\pxec@E@UTF@a}
+\@namedef{pxec@SWU/2004jis}{\let\pxec@E@UTF\pxec@E@UTF@b}
+
+%% define standard sets
+\pxec@declare@jsf@ucs{UTF@a}{J20}{sm-pxot-ja}
+\pxec@declare@jsf@ucs{UTFK}{J21}{sm-pxot-ko}
+\pxec@declare@jsf@ucs{UTFC}{J22}{sm-pxot-sc}
+\pxec@declare@jsf@ucs{UTFT}{J23}{sm-pxot-tc}
+\pxec@declare@jsf@ucs{UTF@b}{J24}{sm-pxot-ja}
+\pxec@declare@jsf@ucs{UTFM}{J25}{}
+\pxec@declare@jsf@cid{CID}{J40}{}
+\pxec@declare@jsf@cid{CIDK}{J41}{}
+\pxec@declare@jsf@cid{CIDC}{J42}{}
+\pxec@declare@jsf@cid{CIDT}{J43}{}
+
+%%------------------ processing in upTeX
+\ifnativeupTeX
+
+\pxDeclareCJKEncoding*{J20}{J30}
+\pxDeclareCJKEncoding*{J21}{J31}
+\pxDeclareCJKEncoding*{J22}{J32}
+\pxDeclareCJKEncoding*{J23}{J33}
+\pxDeclareCJKEncoding*{J24}{J34}
+\pxDeclareCJKEncoding*{J40}{J50}
+\pxDeclareCJKEncoding*{J41}{J51}
+\pxDeclareCJKEncoding*{J42}{J52}
+\pxDeclareCJKEncoding*{J43}{J53}
+
+%<+> \pxSwitchUTFDirect
+%<+> \pxSwitchUTFIndirect
+\def\pxec@nxt#1{% here #1 is \[UTF ]
+  \let\pxec@UTF@ind#1\let\pxec@UcvUTF@ind\pxUcvUTF
+  \def\pxec@UTF@dir##1{\uppercase{\char"##1 }}%
+  \def\pxec@UcvUTF@dir{\char\bxUcv}%
+  \def\pxSwitchUTFDirect{%
+    \let#1\pxec@UTF@dir \let\pxUcvUTF\pxec@UcvUTF@dir}%
+  \def\pxSwitchUTFIndirect{%
+    \let#1\pxec@UTF@ind \let\pxUcvUTF\pxec@UcvUTF@ind}}
+\expandafter\pxec@nxt\csname UTF \endcsname
+
+%% \pxec@out@jsf{<enc>}\[<ext>]
+\def\pxec@out@jsf#1#2{% {<enc>}\[<ext>]
+  {\kanjiencoding{#1}\selectfont \kchar\bxUcv}}
+
+\pxec@jsf@resetcatcode
+\expandafter\endinput \fi\relax % stop here
+%%------------------ processing in pTeX
+
+%% JSF encodings
+\pxDeclareJSFEncoding{J20}{J30}{0,2,3,4,5,6,7,8,9,d,f}
+\pxDeclareJSFEncoding{J21}{J31}{0,1,2,3,4,5,6,7,8,9,a,b,c,d,f}
+\pxDeclareJSFEncoding{J22}{J32}{0,1,2,3,4,5,6,7,8,9,d,f}
+\pxDeclareJSFEncoding{J23}{J33}{0,2,3,4,5,6,7,8,9,d,f}
+\pxDeclareJSFEncoding{J24}{J34}{0,2,3,4,5,6,7,8,9,d,f}
+\pxDeclareJSFEncoding{J40}{J50}{0,1,2,3,4,5}
+\pxDeclareJSFEncoding{J41}{J51}{0,1,2,3,4}
+\pxDeclareJSFEncoding{J42}{J52}{0,1,2,3,4,5,6,7}
+\pxDeclareJSFEncoding{J43}{J53}{0,1,2,3,4}
+
+%% \pxec@out@jsf{<enc>}\[<ext>]
+% The code value specified has been assigned to \bxUcv here.
+\def\pxec@out@jsf#1#2{% {<enc>}\[<ext>]
+  \pxec@loadfontdef{#1}%
+  \bgroup\pxec@pretranscode#2\pxec@transcode
+    \expandafter\let\expandafter\pxec@tmpa
+     \csname #1/\k@family=Z\pxec@sfid/\k@series/\k@shape\endcsname
+    \ifx\pxec@tmpa\relax \pxec@setinvalid \fi
+    \kanjiencoding{#1}\kanjifamily{\k@family=Z\pxec@sfid}%
+    \selectfont\char\jis\bxUcv
+  \egroup\pxec@end}
+
+%% \pxec@transcode
+\mathchardef\pxec@c@jsfa="3030
+\mathchardef\pxec@c@jsfb="1000
+\chardef\pxec@c@jsfx="40
+\chardef\pxec@c@jsfy="C0
+\chardef\pxec@c@jsfz=10
+\def\do#1{\uppercase{\@tempcnta="#1}\relax
+  \expandafter\def\csname pxec@TX/\the\@tempcnta\endcsname{#1}}
+\do a\do b\do c\do d\do e\do f
+\def\pxec@transcode{%
+  \@tempcnta\bxUcv \divide\@tempcnta\pxec@c@jsfb
+  \edef\pxec@sfid{\ifnum\@tempcnta<\pxec@c@jsfz \the\@tempcnta
+    \else \csname pxec@TX/\the\@tempcnta\endcsname \fi}%
+  \multiply\@tempcnta\pxec@c@jsfb \advance\bxUcv-\@tempcnta
+  \@tempcnta\bxUcv \divide\@tempcnta\pxec@c@jsfx
+  \multiply\@tempcnta\pxec@c@jsfy \advance\bxUcv\@tempcnta
+  \advance\bxUcv\pxec@c@jsfa}
+\def\pxec@setinvalid{%
+  % set translated values for source codepoint 0
+  \def\pxec@sfid{0}\bxUcv\pxec@c@jsfa}
+
+%% \pxec@pretranscode\fontSM
+% Here \fontSM is a shadow-map font spec.
+\def\pxec@pretranscode#1{%
+  \ifnum\bxUcv<\p@\else% \p@ = "10000
+    \@tempcnta=\bxUcv \divide\@tempcnta\p@
+    \ifcase\@tempcnta\or \bxUcv\z@ \or
+      \ifx#1\@undefined \bxUcv\z@
+      \else \advance\bxUcv-"20000 \bxMap#1\fi
+    \else\bxUcv\z@\fi
+  \fi}
+
+%% \pxec@loadfontdef{<h-enc>}
+% Tries to load the font definition for current family and encoding
+% <h-enc> on demand from .fd files.
+\def\pxec@loadfontdef#1{%
+  \expandafter\let\expandafter\pxec@tmpa
+   \csname #1+\k@family=Z\endcsname
+  \ifx\pxec@tmpa\@empty \pxec@okfalse % already tried in failure
+  \else\ifx\pxec@tmpa\relax % not yet tried
+    \edef\pxec@nxt{%
+      \noexpand\pxec@loadfontdef@a{#1}%
+      \noexpand\pxec@loadfontdef@a{\csname t@enc#1\endcsname}}%
+    \pxec@oktrue \pxec@nxt
+    \ifpxec@ok\else
+      \expnadafter\let\csname#1+\k@family=Z\endcsname\@empty \fi
+  \else \pxec@oktrue \fi\fi
+  \ifpxec@ok\else \expandafter\pxec@skiptoend \fi}
+\def\pxec@loadfontdef@a#1{%
+  \expandafter\ifx\csname #1+\k@family=Z\endcsname\relax
+    \begingroup \let\typeout\@font@info \escapechar\m@ne
+      \def\f@encoding{#1}\def\f@family{\k@family=Z}%
+      \try@load@fontshape
+    \endgroup\fi
+  \expandafter\ifx\csname #1+\k@family=Z\endcsname\@empty
+    \pxec@err@nojsf{#1}\pxec@okfalse \fi}
+
+%%%% \pxec@skiptoend
+\def\pxec@skiptoend#1\pxec@end{}
+\let\pxec@end\@empty
+
+%%------------------ all done
+\pxec@jsf@resetcatcode
+\endinput
+%% EOF

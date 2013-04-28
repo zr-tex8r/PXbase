@@ -1,0 +1,47 @@
+%
+% ifuptex.sty  (for both LaTeX2e & plain TeX)
+%
+
+%%%% Avoid multiple loading and check if LaTeX2e is used.
+\ifx\iuMode\undefined\else \expandafter\endinput \fi
+\ifx\RequirePackage\undefined  % not LaTeX2e
+  \edef\iuRestoreAt{\catcode64=\the\catcode64}
+  \catcode64=11 \let\iuMode=p
+\else                          % LaTeX2e
+  \let\iuRestoreAt\relax \let\iuMode=l
+  \NeedsTeXFormat{LaTeX2e}
+  \ProvidesPackage{ifuptex}[2008/03/14 v0.2 upTeX checker]
+\fi
+
+%%%% \ifupTeX, \ifnativeupTeX
+\def\iu@true#1{\expandafter\let\csname#1\endcsname\iftrue}
+\def\iu@false#1{\expandafter\let\csname#1\endcsname\iffalse}
+\edef\reserved@a{\string\kchar}\edef\reserved@b{\meaning\kchar}
+\ifx\reserved@a\reserved@b \iu@true{ifupTeX}
+  \ifnum\ucs"3000="3000 \iu@true{ifnativeupTeX}
+  \else \iu@false{ifnativeupTeX} \fi
+\else \iu@false{ifupTeX}\iu@false{ifnativeupTeX}
+\fi
+
+%%%% \iu@noupTeX
+\if l\iuMode  % LaTeX2e
+  \def\iu@noupTeX#1{\PackageError{\@currname}%
+    {This \@cls@pkg\space requires #1}%
+    {I stop loading here.}\expandafter\endinput}
+\else         % not LaTeX2e
+  \def\iu@noupTeX#1{\errorcontextlines=-1
+    \errhelp{You should quit right now.}%
+    \errmessage{This document requires #1!}}
+\fi
+
+%% \RequireupTeX, \RequireNativeupTeX
+\def\RequireupTeX{%
+  \ifupTeX\else \iu@noupTeX{upTeX}\fi}
+\def\RequirenativeupTeX{%
+  \ifnativeupTeX\else \iu@noupTeX{native upTeX}\fi}
+
+%%%% all done
+\let\iu@true\relax\let\iu@false\relax
+\iuRestoreAt\let\iuRestoreAt\relax
+\endinput
+%% EOF
