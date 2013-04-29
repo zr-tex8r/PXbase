@@ -1,0 +1,321 @@
+% 文字コードは UTF-8
+% uplatex で組版する
+\documentclass[a4paper,uplatex]{jsarticle}
+\usepackage{shortvrb}
+\MakeShortVerb{\|}
+\newcommand{\PkgVersion}{0.9b}
+\newcommand{\PkgDate}{2012/08/19}
+\newcommand{\Pkg}[1]{\textsf{#1}}
+\newcommand{\Meta}[1]{$\langle$\mbox{}#1\mbox{}$\rangle$}
+\newcommand{\Note}{\par\noindent ※}
+\newcommand{\Means}{~：\quad}
+\providecommand{\upTeX}{u\pTeX}
+\providecommand{\upLaTeX}{u\pLaTeX}
+%-----------------------------------------------------------
+\DeclareFontShape{JY2}{mc}{m}{ko}{<->s*[.924871]upkorrm-h}{}
+\DeclareFontShape{JT2}{mc}{m}{ko}{<->s*[.924871]upkorrm-v}{}
+\DeclareFontShape{JY2}{gt}{m}{ko}{<->s*[.924871]upkorgt-h}{}
+\DeclareFontShape{JT2}{gt}{m}{ko}{<->s*[.924871]upkorgt-h}{}
+\newcommand{\Kor}[1]{{\kanjishape{ko}\selectfont #1}}
+%-----------------------------------------------------------
+\begin{document}
+\title{\Pkg{pxbabel} パッケージ}
+\author{八登崇之\ （Takayuki YATO; aka.~``ZR''）}
+\date{v\PkgVersion\quad [\PkgDate]}
+\maketitle
+
+%===========================================================
+\section{概要}
+
+{(u)\pLaTeX}における日本語・簡体字中国語・繁体字中国語・
+韓国語（以下この 4 つを「CJK言語」と総称する）の間の
+「和文（CJK）フォント」の切り替えをBabelのインタフェースを
+用いて行えるようにする。
+
+\paragraph{前提環境}
+
+\begin{itemize}
+\item {\TeX}フォーマット： {\pLaTeX}／{\upLaTeX}
+  （拡張エンジンを含む）
+\end{itemize}
+
+\paragraph{依存パッケージ}
+
+\begin{itemize}
+\item \Pkg{babel}パッケージ
+\item \Pkg{OTF}パッケージ（{\pLaTeX}の場合）
+\end{itemize}
+
+%===========================================================
+\section{読込}
+
+v0.9より\Pkg{babel}パッケージと一緒に読み込む方式
+（一括読込モード）をサポートした。
+従来通り、別個に読み込む方式（分離読込モード）も可能である。
+どちらであるかは、\Pkg{pxbabel}読込時に\Pkg{babel}が読込済か
+どうかで判別する。
+
+\begin{quote}
+〈一括読込モードの場合〉\\
+|\usepackage[|\Meta{オプション}|]{pxbabel}|
+\par\bigskip
+〈分離読込モードの場合〉\\
+|\usepackage[|\Meta{Babelのオプション}|]{babel}|\\
+|\usepackage[|\Meta{オプション}|]{pxbabel}|
+\end{quote}
+
+オプションは以下の通り。
+なお「CJK 言語識別子」は次のいずれかの値のことを指す：
+\begin{itemize}
+\item |japanese|： 日本語
+\item |korean|： 韓国語
+\item |schinese|： 簡体字中国語
+\item |tchinese|： 繁体字中国語
+\end{itemize}
+「言語名」はBabelで指定する（|\foreignlanguage| 等の引数にする）
+言語を表す文字列のことである。
+
+\begin{itemize}
+\item \Meta{CJK言語識別子}|=|\Meta{言語名}\Means
+各々のCJK言語に対して実際に使用するBabelの言語名を指定する。
+詳しくは「機能」の節を参照。
+\Note 言語名の既定値はCJK言語識別子と同一名。
+（例えば |japanese|（日本語）の言語名は |japanese|。）
+
+\item \Meta{CJK言語識別子}\Means
+「\Meta{CJK言語識別子}|=|\Meta{CJK言語識別子}」と同じ。
+\Note これは既定値なので通常は指定する必要がないが、
+一括読込モードで「最後の言語（基底言語になる）」を
+指定するのに有用である。
+
+\item \Meta{CJK言語識別子}|=+|\Meta{言語名}\Means
+各々のCJK言語に対して実際に使用するBabelの言語名を指定し、
+かつその言語オプションの定義ファイル（|*.ldf|）を読み込む。
+
+\item |+|\Meta{CJK言語識別子}\Means
+「\Meta{CJK言語識別子}|=+|\Meta{CJK言語識別子}」と同じ。
+
+\item 有効なBabel言語オプションの名前\Means
+その言語オプションの定義ファイルを読み込む。
+\Note 分離読込モードでもこの機能は有効である。
+
+\item |main=|\Meta{言語名}\Means
+文書開始時に有効となる基底言語を、
+言語名（CJK言語識別子でない）で指定する。
+\Note このオプションが未指定の場合、
+分離読込モードでは\Pkg{babel}で最後に読まれた言語が基底言語になる。
+一括読込モードでは\Pkg{pxbabel}で最後に読まれた言語が基底言語になる。
+
+\item |caption=|\Pkg{値}\Means
+キャプション言語（キャプションや日付の文字列で使われる言語）の
+固定に関する設定を行う。
+有効な値は次の通り：
+  \begin{itemize}
+  \item 有効な言語オプション名\Means その言語に固定する。
+  \item |main|\Means 文書開始時の基底言語に固定する。
+  \item |default|\Means キャプション文字列を文書クラスで
+  指定されたものから変更しない。
+  \item |switch|\Means キャプション言語の固定を行わない。
+  （Babelの既定動作。）
+  \item |auto|（既定値）\Means
+  文書開始時の基底言語が
+  「言語オプション定義ファイルの読込を伴わないCJK言語」
+  （仮に「仮想言語設定」と呼ぶ）の場合は |default|、
+  それ以外は |switch|。
+  \end{itemize}
+\Note Babelでは言語の切替に関して、入力言語のみを切り替えるもの
+（|\foreignlanguage| 命令、|otherlanguage*| 環境）
+と基底言語を切り替えるもの
+（|\selectlanguage| 命令、|otherlanguage| 環境）
+があり、既定の動作では
+キャプション言語は基底言語に常に追随する
+（|switch| 指定時と同じ）。
+ところが、「仮想言語設定」においては、キャプション文字列の
+設定が働かないので、基底言語を「仮想言語設定」の言語に切り替えた場合に
+キャプション言語が正しくない事態が生じる。\<\footnote{%
+  ただし「文書開始時以外に基底言語を仮想言語設定に切り替える」ことを
+  しなければ問題は起こらない。
+  特に、「日本語の文書クラスを用いて、かつBabelにおいて
+  仮想言語設定とした日本語を文書全体で基底言語にする」
+  場合は、キャプションは文書クラスで定めたものに固定される。}
+これによる混乱を避けるためにキャプション言語の固定が有効な場合がある。
+特に、「Babelによるキャプション文字列の変更を抑止して文書クラスで
+定めた文字列がいつでも有効であるようにしたい」という場合は、
+|default| を指定すればよい。
+文書開始時の基底言語が仮想言語設定である場合はこちらの使い方が
+多いと考えられるので、この場合には既定を |default| としている。
+\Note \Pkg{bxbase}パッケージの |\fixcaptiopnlanguage| によるキャプション
+言語固定の設定は、常に本パッケージでの設定より優先される。
+この使用は |main| オプションのものと一貫していないが、
+互換性のためそのままにしている。
+
+\item |noswitchcaption|\Means
+|caption=default| と同じ。
+\Note v0.9 より前はこれが既定値であった。
+ゆえに、(|no|)|switchcaption| も |caption| もなく基底言語が
+仮想言語設定でない場合の |caption| 設定は、
+v0.9 より前は |default|、以降は |switch| と異なることになる。
+仮想言語設定でない場合は |default| にする必然性が少ないので、
+Babelの既定動作に合わせる目的で変更された。
+
+\item |switchcaption|\Means
+|caption=switch| と同じ。
+
+\item |switchfont|（既定で有効）\Means
+このパッケージが提供する、
+CJK言語でフォントを切り替える機能を有効にする。
+
+\item |noswitchfont|\Means
+このパッケージが提供する、
+CJK言語でフォントを切り替える機能を無効にする。
+|switchfont| の否定。
+\end{itemize}
+
+%===========================================================
+\section{ユーザ命令}
+
+このパッケージが提供する主要な機能であるCJKフォント切替に
+ついてはBabelの機能を用いて行うことになるため、
+パッケージ特有の命令は存在しない。
+
+例えば、次のようなパッケージ読込（一括読込モード）
+の場合：
+\begin{quote}\begin{verbatim}
+\usepackage[korean,japanese]{pxbabel}
+\end{verbatim}\end{quote}
+本文中で
+\footnote{{\upLaTeX}フォーマット使用または
+{\pLaTeX}で\Pkg{bxutf8}入力エンコーディングを用いているとする。}
+\begin{quote}
+|日本語文書中に\foregnlanguage{korean}{|%
+\textgt{\Kor{한글}}|}がある。|
+\end{quote} 
+と入力すれば次の出力が得られる。
+\begin{quote}
+日本語文書中に\Kor{한글}がある。
+\end{quote} 
+
+本パッケージが提供する命令には次のものがある。
+
+\begin{itemize}
+\item |\cjklanguagename{|\Meta{CJK言語識別子}|\Means
+そのCJK言語に対する言語名。
+\end{itemize}
+
+%===========================================================
+\section{CJKフォント切替機能の原理}
+
+\subsection{{\upLaTeX}において}
+
+{\upTeX}は標準で、CJK言語の{\TeX}フォント（和文TFM）を用意している。
+本パッケージはBabelにおいてCJK言語の切替処理（|\extras...|）
+の中に、フォントの切替を追加し、
+言語の選択に応じて適切なフォントが選ばれるようにする。
+言語に対するBabelの言語オプションの名前は変わりうるので、
+その名前をパッケージ読込時に指定できるようにした。
+また、あるCJK言語の為のオプションが読み込まれていない時は、
+フォントの切替のみをする簡易の言語オプション（仮想言語設定）
+をその場で生成する。
+
+\subsection{{\pLaTeX}において}
+
+OTFパッケージの |multi| オプションは{\pLaTeX}において
+韓国語・中国語を扱うためのもので、
+これを使うと |\UTFK|／|\UTFC|／|\UTFT| で
+韓国語／中国語(簡体)／中国語(繁体)のフォントを用いて
+文字が出力される
+（これらの命令の引数は |\UTF| と同じでUnicode値16進）。
+
+{\pLaTeX}における本パッケージの動作は次のようである。
+まず、{\upLaTeX}の場合と同じようにCJK言語のための
+Babel言語オプションを生成する。
+その上で、CJK言語に切り替わった場合には、
+|\UTF| の動作を「本来の |\UTF|」／|\UTFK|／|\UTFC|／|\UTFT|
+に切り替える。
+この機能は単独ではあまり有用とはいえないが、
+\Pkg{bxutf8}入力エンコーディング（\Pkg{BXucs}バンドル）
+と併用してCJK言語のUTF-8直接入力を行う時に有用となる。
+すなわち直接入力されたCJK文字は |\UTF| に変換されるので、
+結果的に{\upLaTeX}の時と同じように、Babelで切り替えた言語用の
+フォントで出力することが可能となる。
+
+\Note ただし、この機構には、
+「JIS X~0208にある文字はそもそも |\UTF| に変換されずに
+直接日本語フォントで出力される」
+という欠点をもつ。
+これを解決するには\Pkg{pxfltsrc}パッケージ等の機能を用いて
+文書にテキスト変換フィルタを適用されるという処理が必要になる。
+
+%===========================================================
+\section{Babel一括読込モード}
+
+v0.9より前では、Babel本体（\Pkg{babel}パッケージ）
+とは別個に読み込む方式のみを採用していた。
+ところがこの場合、
+「Babelの本来の機能は不要で\Pkg{pxbabel}の
+フォント切替だけを用いたい」
+という場合、かなり不自然な指定をする必要があった。
+例えば、日本語（|japanese|）と韓国語（|korean|）を
+切り替えたい（メインは日本語）という場合は次のようになる。
+
+\begin{quote}\begin{verbatim}
+\usepackage[english]{babel}
+\usepackage[main=japanese]{pxbabel}
+\end{verbatim}\end{quote}
+\Note \Pkg{pxbabel}を読んで基底言語を |japanese|
+にする必要があるのだが、
+そうするとまず \Pkg{babel} を読む必要があり
+ここで何かダミーの言語（|english| を用いた）を指定する必要がある。
+このままでは基底が |english| になるので、
+|japanese| を基底にするのに |main| オプションが必要。
+
+そこで、v0.9において、\Pkg{babel}と一括で読み込むことで、
+\Pkg{babel}の使用言語オプション指定の方法を踏襲できるようにした。
+\Pkg{babel}の読込前に\Pkg{pxbabel}を読み込むとこの動作になり、
+\Pkg{babel}も一緒に読み込まれる。
+
+\begin{quote}\begin{verbatim}
+\usepackage[korean,japanese]{pxbabel}
+\end{verbatim}\end{quote}
+\Note オプションは\Pkg{babel}のものと同じ理屈で書く。
+|korean| と |japanese| を用い、
+基底が |japanese| なのでこの順番になる。
+
+目的が「{\upTeX}のSIP対応の日本語フォントが使いたい」
+だけの場合は以下のようになる。
+
+\begin{quote}\begin{verbatim}
+\usepackage[japanese]{pxbabel}
+\end{verbatim}\end{quote}
+\Note |japanese| のみ指定して、当然これが基底。
+
+実際には、4つのCJK言語のオプションは「常に」出現するので、
+上の2つの指定は等価であるが、
+一括読込の場合は\Pkg{babel}の習慣に合わせて記述するのが
+解りやすいと思われる。
+
+少し複雑な例を挙げておく。
+ドイツ語（|ngerman|）、日本語（|japanese|）、
+簡体字中国語（|simpchinese|）、繁体字中国語（|tradchinese|）
+を使用し、かつ前の3つには言語オプション定義（|*.ldf|）があり、
+基底は日本語で、キャプション言語の固定は行わないとする。
+
+<分離読込モード>
+\usepackage[ngerman,simpchinese,japanese]{babel}
+\usepackage[schinese=simpchinese,tchinese=tradchinese,
+            caption=switch]{pxbabel}
+※ 分離読込の場合は babel で最後に指定したものが基底言語。
+<一括読込モード>
+\usepackage[ngerman,schinese=+simpchinese,tchinese=tradchinese,
+            +japanese]{pxbabel}
+※ ldf の読込を伴う言語（japanese）が基底なので、caption は switch
+が既定値になる。なお、非 CJK 言語（ngerman）には決して + を付けない
+ことに注意。
+
+%===========================================================
+\section{更新履歴}
+
+|README| ファイルを参照。
+
+%===========================================================
+\end{document}
