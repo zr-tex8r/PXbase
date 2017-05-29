@@ -3,8 +3,8 @@
 \documentclass[a4paper,uplatex]{jsarticle}
 \usepackage{shortvrb}
 \MakeShortVerb{\|}
-\newcommand{\PkgVersion}{0.9b}
-\newcommand{\PkgDate}{2012/08/19}
+\newcommand{\PkgVersion}{1.1}
+\newcommand{\PkgDate}{2017/05/29}
 \newcommand{\Pkg}[1]{\textsf{#1}}
 \newcommand{\Meta}[1]{$\langle$\mbox{}#1\mbox{}$\rangle$}
 \newcommand{\Note}{\par\noindent ※}
@@ -21,7 +21,7 @@
 \begin{document}
 \title{\Pkg{pxbabel} パッケージ}
 \author{八登崇之\ （Takayuki YATO; aka.~``ZR''）}
-\date{v\PkgVersion\quad [\PkgDate]}
+\date{v\PkgVersion \quad [\PkgDate]}
 \maketitle
 
 %===========================================================
@@ -106,7 +106,7 @@ v0.9より\Pkg{babel}パッケージと一緒に読み込む方式
 分離読込モードでは\Pkg{babel}で最後に読まれた言語が基底言語になる。
 一括読込モードでは\Pkg{pxbabel}で最後に読まれた言語が基底言語になる。
 
-\item |caption=|\Pkg{値}\Means
+\item |caption=|\Meta{値}\Means
 キャプション言語（キャプションや日付の文字列で使われる言語）の
 固定に関する設定を行う。
 有効な値は次の通り：
@@ -138,7 +138,8 @@ v0.9より\Pkg{babel}パッケージと一緒に読み込む方式
   特に、「日本語の文書クラスを用いて、かつBabelにおいて
   仮想言語設定とした日本語を文書全体で基底言語にする」
   場合は、キャプションは文書クラスで定めたものに固定される。}
-これによる混乱を避けるためにキャプション言語の固定が有効な場合がある。
+これによる混乱を避けるためにキャプション言語の固定が
+有用である場合がある。
 特に、「Babelによるキャプション文字列の変更を抑止して文書クラスで
 定めた文字列がいつでも有効であるようにしたい」という場合は、
 |default| を指定すればよい。
@@ -198,7 +199,7 @@ CJK言語でフォントを切り替える機能を無効にする。
 本パッケージが提供する命令には次のものがある。
 
 \begin{itemize}
-\item |\cjklanguagename{|\Meta{CJK言語識別子}|\Means
+\item |\cjklanguagename{|\Meta{CJK言語識別子}|}|\Means
 そのCJK言語に対する言語名。
 \end{itemize}
 
@@ -300,22 +301,30 @@ v0.9より前では、Babel本体（\Pkg{babel}パッケージ）
 を使用し、かつ前の3つには言語オプション定義（|*.ldf|）があり、
 基底は日本語で、キャプション言語の固定は行わないとする。
 
-<分離読込モード>
+\paragraph{分離読込モード}
+
+\begin{quote}\begin{verbatim}
 \usepackage[ngerman,simpchinese,japanese]{babel}
 \usepackage[schinese=simpchinese,tchinese=tradchinese,
             caption=switch]{pxbabel}
-※ 分離読込の場合は babel で最後に指定したものが基底言語。
-<一括読込モード>
+\end{verbatim}\end{quote}
+
+\Note 分離読込の場合は\Pkg{babel}で最後に指定したものが基底言語。
+
+\paragraph{一括読込モード}
+\begin{quote}\begin{verbatim}
 \usepackage[ngerman,schinese=+simpchinese,tchinese=tradchinese,
             +japanese]{pxbabel}
-※ ldf の読込を伴う言語（japanese）が基底なので、caption は switch
-が既定値になる。なお、非 CJK 言語（ngerman）には決して + を付けない
-ことに注意。
+\end{verbatim}\end{quote}
+
+\Note ldfの読込を伴う言語（|japanese|）が基底なので、
+|caption| は |switch| が既定値になる。
+なお、非CJK言語（|ngerman|）には決して |+| を付けないことに注意。
 
 %===========================================================
 \section{更新履歴}
 
-|README| ファイルを参照。
+|README-ja.md| ファイルを参照。
 
 %===========================================================
 \end{document}
