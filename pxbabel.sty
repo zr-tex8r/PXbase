@@ -160,7 +160,23 @@
 \bxDebug{otfmulti = \pxbb@bool{pxbb@otfmulti}}
 \fi
 
-%--------------------------------------- Generating option-to-file mapping
+%--------------------------------------- lumped loading
+\ifpxbb@babel\else
+
+%% load Babel
+\let\pxbb@tmpa\pxbb@lang@load@list
+\ifx\pxbb@tmpa\@empty \def\pxbb@tmpa{english}\fi
+\edef\pxbb@tmpa{%
+  \noexpand\RequirePackage[\pxbb@tmpa]{babel}%
+}\pxbb@tmpa
+
+\fi
+%--------------------------------------- separate loading
+\ifpxbb@babel
+
+%% \pxbb@g@add@lang@proc
+\bxPreamble\let\pxbb@g@add@lang@proc\@empty
+\begingroup
 
 %% remove languages that are already loaded
 \let\pxbb@tmpa\@empty
@@ -168,43 +184,87 @@
   \bxIfcsundef{date#1}{\appto\pxbb@tmpa{,#1}}{}}
 \bxChompComma\pxbb@tmpa
 \let\pxbb@lang@load@list\pxbb@tmpa
-\undef\pxbb@tmpa
 \bxDebug{\pxbb@lang@load@list}
 
-%% \pxbb@clean@bblopt
-\def\pxbb@clean@bblopt{\undef\pxbb@clean@bblopt}
+%% if some language should be added...
+\ifx\pxbb@lang@load@list\@empty\else
+  \ifdef\bbl@load@language{%
+    \PackageWarning\pxbb@pkgname
+     {Some languages need to be added. Note that the\MessageBreak
+      process of addition is unreliable}%
+  }{%else
+    \PackageError\pxbb@pkgname
+     {Some languages need to be added, but the addition\MessageBreak
+      is not supported because Babel in use is too old}%
+     {The languages to be added will be ignored.\MessageBreak
+      \@ehc}}
+\fi
 
-%% extract option handlers from babel.sty
-% (what a dirty hack!)
-\ifx\pxbb@lang@load@list\@empty \else
-\begingroup
+%% build \pxbb@g@add@lang@proc
 \bxForEachIn\pxbb@lang@load@list\do{%
   \csdef{pxbb@use/#1}{t}}
-\long\def\NeedsTeXFormat#1\DeclareOption{\DeclareOption}
-\def\DeclareOption#1{%
-  \bxIfcsundef{pxbb@use/#1}{\@gobble}%
-   {\gappto\pxbb@clean@bblopt{\csundef{pxbb@bbl@opt/#1}}%
-    \csgdef{pxbb@bbl@opt/#1}}}
-\def\InputIfFileExists#1#2#3{}
-\def\ProcessOptions#1{\endinput}
-\input babel.sty\relax
-\endgroup
-\fi
-
-%--------------------------------------- Loading Babel & adding languages
-
-%% load babel if not yet
-\ifpxbb@babel\else
-\RequirePackage[english]{babel}
-\fi
+\def\pxbb@babel@alias#1#2{%
+  \bxIfcsundef{pxbb@use/#1}{}{%else
+    % if the real name is available, then ok
+    \IfFileExists{#1.ldf}{}{%else
+      \csdef{pxbb@bbl@opt/#1}{\bbl@load@language{#2}}}}}
+\def\pxbb@babel@load@proc#1{%
+  \bxIfcsundef{pxbb@use/#1}{\@gobble}{%else
+    \csdef{pxbb@bbl@opt/#1}}}
+% the alias list
+\pxbb@babel@alias{acadian}{frenchb}
+\pxbb@babel@alias{afrikaans}{dutch}
+\pxbb@babel@alias{american}{english}
+\pxbb@babel@alias{australian}{english}
+\pxbb@babel@alias{austrian}{germanb}
+\pxbb@babel@alias{bahasa}{bahasai}
+\pxbb@babel@alias{bahasai}{bahasai}
+\pxbb@babel@alias{bahasam}{bahasam}
+\pxbb@babel@alias{brazil}{portuges}
+\pxbb@babel@alias{brazilian}{portuges}
+\pxbb@babel@alias{british}{english}
+\pxbb@babel@alias{canadian}{english}
+\pxbb@babel@alias{canadien}{frenchb}
+\pxbb@babel@alias{francais}{frenchb}
+\pxbb@babel@alias{french}{frenchb}
+\pxbb@babel@alias{german}{germanb}
+\pxbb@babel@alias{hungarian}{magyar}
+\pxbb@babel@alias{indon}{bahasai}
+\pxbb@babel@alias{indonesian}{bahasai}
+\pxbb@babel@alias{lowersorbian}{lsorbian}
+\pxbb@babel@alias{malay}{bahasam}
+\pxbb@babel@alias{melayu}{bahasam}
+\pxbb@babel@alias{meyalu}{bahasam}
+\pxbb@babel@alias{naustrian}{ngermanb}
+\pxbb@babel@alias{newzealand}{english}
+\pxbb@babel@alias{ngerman}{ngermanb}
+\pxbb@babel@alias{nynorsk}{norsk}
+\pxbb@babel@alias{portuguese}{portuges}
+\pxbb@babel@alias{russian}{russianb}
+\pxbb@babel@alias{UKenglish}{english}
+\pxbb@babel@alias{ukrainian}{ukraineb}
+\pxbb@babel@alias{uppersorbian}{usorbian}
+\pxbb@babel@alias{USenglish}{english}
+\pxbb@babel@load@proc{hebrew}{%
+  \input{rlbabel.def}\bbl@load@language{hebrew}}
+\pxbb@babel@load@proc{polutonikogreek}{%
+  \bbl@load@language{greek}\languageattribute{greek}{polutoniko}}
 
 %% load addtional languages
 \bxForEachIn\pxbb@lang@load@list\do{%
-  \def\CurrentOption{#1}%
+  \gappto\pxbb@g@add@lang@proc{\def\CurrentOption{#1}}%
   \bxIfcsundef{pxbb@bbl@opt/#1}%
-   {\InputIfFileExists{#1.ldf}{}{\pxbb@err@noldf{#1}}}%
-   {\@nameuse{pxbb@bbl@opt/#1}}}
-\pxbb@clean@bblopt
+   {\gappto\pxbb@g@add@lang@proc{\bbl@load@language{#1}}}%
+   {\letcs\pxbb@tmpa{pxbb@bbl@opt/#1}%
+    \xappto\pxbb@g@add@lang@proc{\expandonce{\pxbb@tmpa}}}}
+\gappto\pxbb@g@add@lang@proc{\let\CurrentOption\@empty}
+
+\endgroup
+% dispatch
+\pxbb@g@add@lang@proc
+
+\fi
+%--------------------------------------- post-load process
 
 %% declare 'triv' languages
 \bxForEachIn\pxbb@cjk@langid@list\do{%
