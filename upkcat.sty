@@ -1,22 +1,50 @@
-%
-% upkcat.sty (for both upLaTeX2e & plain upTeX)
-%
+%%
+%% This is file 'upkcat.sty'.
+%% 
+%% Copyright (c) 2017 Takayuki YATO (aka. "ZR")
+%%   GitHub:   https://github.com/zr-tex8r
+%%   Twitter:  @zr_tex8r
+%%
+%% This package is distributed under the MIT License.
+%%
 
-%%%% avoid multiple loading and check if LaTeX2e is used.
-\ifx\pxkqOk\undefined\else \expandafter\endinput \fi
-\edef\pxkqRestoreAt{\catcode64=\the\catcode64\relax}\catcode64=11
-\ifx\RequirePackage\@undefined  % LaTeX2e
-  \NeedsTeXFormat{pLaTeX2e}
-  \ProvidesPackage{upkcat}[2008/03/14 v0.2 safe kcatcode access]
+% Note: This package supports both upLaTeX and plain upTeX.
+
+%% avoid multiple loading
+\csname\if11upkcatstyLoaded\fi\endcsname
+%% code guards
+\edef\x{\catcode32=\the\catcode32%
+\catcode43=\the\catcode43\catcode45=\the\catcode45%
+\catcode46=\the\catcode46\catcode47=\the\catcode47%
+\catcode60=\the\catcode60\catcode63=\the\catcode63%
+\catcode64=\the\catcode64\catcode96=\the\catcode96%
+\endlinechar=\the\endlinechar\relax}
+\catcode32=10\relax\endlinechar=13\relax
+\catcode43=12 \catcode45=12 % <+><->
+\catcode46=12 \catcode47=12 % <.></>
+\catcode60=12 \catcode63=12 % <<><?>
+\catcode64=11 \catcode96=12 % <@><`>
+\edef\pxkq@restore@codes{\x\let\noexpand\pxkq@restore@codes\relax}
+%% check for LaTeX
+\ifx\RequirePackage\@undefined %<*!LaTeX>
+  \long\def\x#1\ProvidesPackage#2[#3]{\immediate\write-1{Package: #2 #3}}
+  \expandafter\x
+\else                          %<*LaTeX>
   \RequirePackage{ifuptex}[2008/03/14]\RequireupTeX
-\fi \let\pxkqOk=t
+\fi                            %</LaTeX>
 
-%%%% \getkcatcode, \setkcatcode
-\edef\skrestoreat{\catcode64=\the\catcode64}\catcode64=11
-\newcount\pxkq@cp \newif\ifpxkq@ok
+%% package declaration
+\NeedsTeXFormat{pLaTeX2e}
+\ProvidesPackage{upkcat}[2017/05/29 v1.1pre safe kcatcode access]
+
+%--------------------------------------- main
+
+%%<*> \getkcatcode{<jachar>}
 \def\getkcatcode#1{\pxkq@getcp{#1}%
   \edef\thekcatcode{\the\kcatcode\pxkq@cp}}
+%%<*> \setkcatcode{<jachar>}{<value>}
 \def\setkcatcode#1#2{\pxkq@getcp{#1}\kcatcode\pxkq@cp#2}
+\newcount\pxkq@cp \newif\ifpxkq@ok
 \def\pxkq@getcp#1{\pxkq@getcp@a#1\relax\relax}
 \def\pxkq@nxt#1#2#3#4#5{\pxkq@cp#1\loop
   {\lccode`\?\pxkq@cp \advance\pxkq@cp-#3%
@@ -45,6 +73,7 @@
   \errmessage{Corrupted UTF-8 bytes}\pxkq@cp65535\relax}
 %\def\pxkq@end#1\relax{\showthe\pxkq@cp}
 
-%%%% all done
-\pxkqRestoreAt \endinput
+%--------------------------------------- all done
+\pxkq@restore@codes
+\endinput
 %% EOF

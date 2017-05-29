@@ -1,19 +1,38 @@
-%
-% pxbasenc.def
-%
-%%%% file declaration
-\NeedsTeXFormat{pLaTeX2e}
-\ProvidesFile{pxbasenc.def}[2010/05/05 v0.5 PX encoding library]
+%%
+%% This is file 'pxbasenc.def'.
+%%
 
-%%%% preparation
-\RequirePackage{ifuptex}
-%\def\pxec@b@pkgname{PXbase}
-\def\pxec@error{\PackageError\px@b@pkgname}
-\def\pxec@err@irfam#1{\pxec@error
-  {Encodings '\pxec@tmpa' redefined inconsistently}\@ehc}
-\def\pxec@err@ukjsf{\pxec@error
-  {'\k@encoding' is not valid as JSF encoding}\@ehc}
-\edef\pxec@resetcatcode{} % nothing for the present
+%% file declaration
+\NeedsTeXFormat{pLaTeX2e}
+\ProvidesFile{pxbasenc.def}[2017/05/29 v1.1pre PX encoding library]
+\def\pxec@pkgname{PXbase} % bundle name
+
+%% code guards
+\edef\pxec@restore@codes{%
+  \catcode33=\the\catcode33%
+  \catcode39=\the\catcode39%
+  \catcode45=\the\catcode45%
+  \catcode46=\the\catcode46%
+  \catcode47=\the\catcode47%
+  \catcode58=\the\catcode58%
+  \catcode60=\the\catcode60%
+  \catcode62=\the\catcode62%
+\relax}
+\catcode33=12 % <!>
+\catcode39=12 % <'>
+\catcode45=12 % <->
+\catcode46=12 % <.>
+\catcode47=12 % </>
+\catcode58=12 % <:>
+\catcode60=12 % <<>
+\catcode62=12 % <>>
+
+%--------------------------------------- general
+
+%% packages
+\RequirePackage{ifuptex}[2008/03/14]
+
+%% variables
 \ifx\bxUcv\@undefined
 \newcount\bxUcv
 \fi
@@ -21,11 +40,17 @@
 \newif\ifpxec@sw
 \newif\ifpxec@star
 
-%%------------------ CJK font declarations
+%% errors
+\def\pxec@error{\PackageError\pxec@pkgname}
+\def\pxec@err@irfam#1{\pxec@error
+  {Encodings '\pxec@tmpa' redefined inconsistently}\@ehc}
+\def\pxec@err@ukjsf{\pxec@error
+  {'\k@encoding' is not valid as JSF encoding}\@ehc}
 
-%%%% obtain error kanji font setting
-%    for use as 'safe font setting'
-\bgroup \escapechar\m@ne \error@kfontshape
+%--------------------------------------- CJK font declarations
+
+%% obtain error kanji font setting for use as 'safe font setting'
+\begingroup \escapechar\m@ne \error@kfontshape
   \expandafter\let\expandafter\pxec@tenc
     \csname t@enc@\f@encoding\endcsname
   \xdef\pxec@safe@jfontspec
@@ -34,7 +59,7 @@
     \csname \f@encoding/\f@family/\f@series/\f@shape\endcsname
   \global\expandafter\let\expandafter\pxec@safe@t@decl
     \csname \pxec@tenc/\f@family/\f@series/\f@shape\endcsname
-\egroup
+\endgroup
 
 %% \pxec@starinvoke\SOMECS
 \def\pxec@starinvoke#1{%
@@ -193,7 +218,7 @@
   \pxDeclareCJKShape{#1}{gt}{bx}{#2}{#6}}
 
 
-%%------------------ passive \DeclareFontShape
+%--------------------------------------- passive \DeclareFontShape
 
 %%<+> \pxForceFontDeclaration
 % Takes either of the following values and decides what to do
@@ -222,7 +247,7 @@
     \@xipt\@xiipt\@xivpt\@xviipt\@xxpt\@xxvpt\do
     {\expandafter\let\csname #1/#2/#3/#4/\pxec@y\endcsname\@undefined}}
 
-%%------------------- CJK named encodings
+%--------------------------------------- CJK named encodings
 
 %%<+> \pxDeclareEncodingDispatcher{<enc_name>}{<text>}
 \@onlypreamble\pxDeclareEncodingDispatcher
@@ -259,7 +284,7 @@
 \def\pxSetEncodingName#1#2#3{%
   \@namedef{pxec@EY/#1}{#2}\@namedef{pxec@ET/#1}{#3}}
 
-%%------ font declarations using named encodings
+%------------------------------- font declarations using named encodings
 
 %%<+> \pxec@supdef\SOMECS{<text1>}{<text2>}
 % Define \SOMECS to be <text1> if <text1> is non-empty,
@@ -314,7 +339,7 @@
   \pxDeclareCJKShape\pxec@y{#2}{#3}{#4}{#5}%
   \pxDeclareCJKShape\pxec@t{#2}{#3}{#4}{\pxec@z}}
 
-%%------------------- JSF encodings
+%--------------------------------------- JSF encodings
 
 %%<+> \pxDeclareJSFEncoding{<h-enc>}{<v-enc>}{<sfid>,...}
 \def\pxDeclareJSFEncoding#1#2#3{%
@@ -377,7 +402,7 @@
 %%<+> \JSFShapeRaw{<ser>}{<shape>}{<spec>}
 \def\pxec@JSFShapeRaw{\pxDeclareFontShape}
 
-%%------------------ basic encodings
+%--------------------------------------- basic encodings
 
 %%%% the standard Japanese encodings
 \ifnativeupTeX
@@ -456,7 +481,7 @@
 
 \fi                 %</upTeX>
 
-%%------------------ patches to OTF/UTF packages
+%--------------------------------------- patches to OTF/UTF packages
 
 %%%% make \CID work in nonstandard CJK encodings
 % \UTF & \CID require the current encoding to be the standard one, thus
@@ -477,7 +502,7 @@
     \fi}%
   \let\pxBDHookEncSwitchOTF\@empty}% nullify
 
-%%------------------ all done
-\pxec@resetcatcode
+%--------------------------------------- all done
+\pxec@restore@codes
 \endinput
 %% EOF

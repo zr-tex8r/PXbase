@@ -1,22 +1,39 @@
-%
-% pxjsfenc.def
-%
-%%%% file declaration
-\NeedsTeXFormat{pLaTeX2e}
-\ProvidesFile{pxjsfenc.def}[2010/05/05 v0.5 PX JSF encoding]
+%%
+%% This is file 'pxjsfenc.def'.
+%%
 
-%%%% preparation
+%% file declaration
+\NeedsTeXFormat{pLaTeX2e}
+\ProvidesFile{pxjsfenc.def}[2017/05/29 v1.1pre PX JSF encoding]
+
+%% code guards
+\edef\pxec@jsf@restore@codes{%
+  \catcode34=\the\catcode34%
+  \catcode43=\the\catcode43%
+  \catcode45=\the\catcode45%
+  \catcode46=\the\catcode46%
+  \catcode47=\the\catcode47%
+  \catcode60=\the\catcode60%
+\relax}
+\catcode34=12 % <">
+\catcode43=12 % <+>
+\catcode45=12 % <->
+\catcode46=12 % <.>
+\catcode47=12 % </>
+\catcode60=12 % <<>
+\g@addto@macro\pxec@jsf@restore@codes{%
+  \let\pxec@jsf@restore@codes\@undefined}
+
+%--------------------------------------- general
+
+%% packages
 \RequirePackage{pxbase}
-\bxInputDefFile{pxbasenc}
-% common with pxbasenc
-%\def\pxec@b@pkgname{PXbase}
-%\def\pxec@error{\PackageError\px@b@pkgname}
-%
-\edef\pxec@jsf@resetcatcode{\catcode34=\the\catcode34\relax}
-\catcode34=12  %<">
+\bxRequireDefinition{pxbasenc}
+
+%% variables
 \newif\ifpxec@hyperref % true if hyperref patch is invoked
 
-%%------ main module
+%--------------------------------------- main
 
 %% \pxec@declare@jsf@gen{<name>}{<enc>}{<ext>}
 \def\pxec@declare@jsf@ucs{\pxec@swtrue\pxec@declare@jsf@a}
@@ -72,7 +89,7 @@
 \pxec@declare@jsf@cid{CIDC}{J42}{}
 \pxec@declare@jsf@cid{CIDT}{J43}{}
 
-%%------------------ processing in upTeX
+%--------------------------------------- processing in upTeX
 \ifnativeupTeX
 
 \pxDeclareCJKEncoding*{J20}{J30}
@@ -101,9 +118,9 @@
 \def\pxec@out@jsf#1#2{% {<enc>}\[<ext>]
   {\kanjiencoding{#1}\selectfont \kchar\bxUcv}}
 
-\pxec@jsf@resetcatcode
+\pxec@jsf@restore@codes
 \expandafter\endinput \fi\relax % stop here
-%%------------------ processing in pTeX
+%--------------------------------------- processing in pTeX
 
 %% JSF encodings
 \pxDeclareJSFEncoding{J20}{J30}{0,2,3,4,5,6,7,8,9,d,f}
@@ -189,7 +206,7 @@
 \def\pxec@skiptoend#1\pxec@end{}
 \let\pxec@end\@empty
 
-%%------------------ all done
-\pxec@jsf@resetcatcode
+%--------------------------------------- all done
+\pxec@jsf@restore@codes
 \endinput
 %% EOF

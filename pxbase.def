@@ -1,6 +1,7 @@
-%
-% pxbase.def
-%
-\PackageError{pxbase}{pxbase.def should no longer be read}%
-{The current BX/PXbase package does not need the file.}
-% EOF
+%%
+%% This is file 'pxbase.def'.
+%%
+\PackageError{pxbase}%
+ {pxbase.def should no longer be read}%
+ {The current BX/PXbase package does not need the file.}
+%% EOF

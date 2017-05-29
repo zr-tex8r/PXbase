@@ -1,33 +1,43 @@
-%
-% pxbabel.sty
-%
+%%
+%% This is file 'pxbabel.sty'.
+%% 
+%% Copyright (c) 2017 Takayuki YATO (aka. "ZR")
+%%   GitHub:   https://github.com/zr-tex8r
+%%   Twitter:  @zr_tex8r
+%%
+%% This package is distributed under the MIT License.
+%%
+
 %% package declaration
 \NeedsTeXFormat{pLaTeX2e}
-\ProvidesPackage{pxbabel}[2011/03/01 v0.9 PX Babel interface for CJK]
+\ProvidesPackage{pxbabel}[2017/05/29 v1.1pre PX Babel interface for CJK]
+\def\pxbb@pkgname{pxbabel}
 
-%% preparations
+%--------------------------------------- general
+
+%% packages
 \RequirePackage{pxbase}
 \RequirePackage{ifptex}
 \safecaret
 \bxPrepareSetKeysSafe
 
-%% error message
-\def\pxbb@pkgname{pxbabel}
+%% error messages
 \bxSetModuleName\pxbb@pkgname
-\def\pxbb@error{\PackageError\pxbb@pkgname}
-\def\pxbb@warn{\PackageWarningNoLine\pxbb@pkgname}
 \def\pxbb@eha{\MessageBreak I aborted loading it.}
-\bxPreamble\def\pxbb@err@nobbl{\pxbb@error
-  {babel is not yet loaded, load aborted}%
-  {This package must be loaded after babel package.}}
-\bxPreamble\def\pxbb@warn@nocjk{\pxbb@warn
-  {No multi-CJK support found, font switch disabled\MessageBreak
-   (I need upTeX-extension or otf package with `multi')}}
-\bxPreamble\def\pxbb@err@noldf#1{\pxbb@error
-  {Language definition file #1.ldf not found}%
-  {Maybe you misspelled the language option?}}
+\bxPreamble\def\pxbb@err@nobbl{%
+  \PackageError\pxbb@pkgname
+   {babel is not yet loaded, load aborted}%
+   {This package must be loaded after babel package.}}
+\bxPreamble\def\pxbb@warn@nocjk{%
+  \PackageWarningNoLine\pxbb@pkgname
+   {No multi-CJK support found, font switch disabled\MessageBreak
+    (I need upTeX-extension or otf package with `multi')}}
+\bxPreamble\def\pxbb@err@noldf#1{%
+  \PackageError\pxbb@pkgname
+   {Language definition file #1.ldf not found}%
+   {Maybe you misspelled the language option?}}
 
-%%------------------ Processing package options
+%--------------------------------------- Processing package options
 
 %% \pxbb@cjk@langid@list
 % The list of all CJK language ids.
@@ -96,7 +106,7 @@
 \bxForEachIn\pxbb@lang@load@list\do{%
   \csundef{pxbb@triv/#1}}
 
-%%------------------ Resolving settings
+%--------------------------------------- Resolving settings
 
 %% \ifpxbb@otfmulti
 %% \ifpxbb@pxotf
@@ -150,7 +160,7 @@
 \bxDebug{otfmulti = \pxbb@bool{pxbb@otfmulti}}
 \fi
 
-%%------------------ Generating option-to-file mapping
+%--------------------------------------- Generating option-to-file mapping
 
 %% remove languages that are already loaded
 \let\pxbb@tmpa\@empty
@@ -181,7 +191,7 @@
 \endgroup
 \fi
 
-%%------------------ Loading Babel & adding languages
+%--------------------------------------- Loading Babel & adding languages
 
 %% load babel if not yet
 \ifpxbb@babel\else
@@ -209,7 +219,7 @@
 \bxIfExpToEqual{\pxbb@caption@lang}{switch}{}%else
  {\bxProvideCaptionLanguage{\pxbb@caption@lang}}
 
-%%------------------ Adding font switch to 'extra's
+%--------------------------------------- Adding font switch to 'extra's
 
 \ifpxbb@otfmulti        %----<*otfmulti>
 
@@ -249,7 +259,7 @@
 \pxDeclareBasicCJKFamily{J33}{!uptchrm-v}{!uptchgt-v}{*gt}{*gt}
 \fi
 
-%%------ add font switch to Babel \extras
+%--------------------------------------- add font switch to Babel \extras
 \ifpxbb@switchfont
 
 %% \pxbb@set@full@ja@enc
@@ -287,17 +297,14 @@
 
 \fi                     %----</upTeX>
 
-%%------------------ Other user commands
+%--------------------------------------- Other user commands
 
 %%<*> \cjklanguagename{<lang_id>}
 % Expands to the babel language name for <lang_id>.
 \newcommand*\cjklanguagename[1]{%
   \@nameuse{pxbb@langname/#1}}
-%%<*D> \pxlanguagename{<lang_id>}
-% Old name for \cjklanguagename
-\newcommand*\pxlanguagename{\cjklanguagename}
 
-%%------------------ all done
+%--------------------------------------- all done
 \endinput
 %
 %   Roman, H      Gothic, H     Roman, V      Gothic, H     : metric encod.
