@@ -82,6 +82,8 @@
 \newbool{pxbb@prefermmivjis}
 \DeclareOption{prefer2004jis}{\pxbb@prefermmivjistrue}
 \DeclareOption{noprefer2004jis}{\pxbb@prefermmivjisfalse}
+\DeclareOption{jis2004}{\pxbb@prefermmivjistrue}
+\DeclareOption{nojis2004}{\pxbb@prefermmivjisfalse}
 % (<lang_id>, +<lang_id>)
 \bxForEachIn\pxbb@cjk@langid@list\do{%
   \DeclareOption{#1}{%
@@ -344,9 +346,11 @@
     \pxbb@set@full@ja@enc
     \let\pxInNonJaLanguage=#3%
     \let\pxbb@org@encoding\cy@encoding
+    \long\def\kanjiencodingdefault{#2}%
     \kanjiencoding{#2}\selectfont}%
   \csappto{noextras#1}{%
     \let\pxInNonJaLanguage\@undefined
+    \long\def\kanjiencodingdefault{\pxbb@org@encoding}%
     \kanjiencoding{\pxbb@org@encoding}\selectfont}}
 \pxbb@addtoextras{japanese}{t}{}
 \pxbb@addtoextras{korean}{f}{J21}
