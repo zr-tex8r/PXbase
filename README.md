@@ -67,6 +67,7 @@ README-ja.md).
 Revision History
 ----------------
 
+  * Version 1.1a 〈2017/06/19〉
   * Version 1.1  〈2017/05/29〉
   * Version 0.5i 〈2017/05/04〉 ― for CTAN
   * Version 0.9b 〈2012/08/19〉

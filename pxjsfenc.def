@@ -4,7 +4,7 @@
 
 %% file declaration
 \NeedsTeXFormat{pLaTeX2e}
-\ProvidesFile{pxjsfenc.def}[2017/05/29 v1.1 PX JSF encoding]
+\ProvidesFile{pxjsfenc.def}[2017/06/19 v1.1a PX JSF encoding]
 
 %% code guards
 \edef\pxec@jsf@restore@codes{%
