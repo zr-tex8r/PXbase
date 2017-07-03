@@ -136,7 +136,7 @@
   \pxec@starinvoke\pxec@DeclareExtraCJKFamily}
 \@onlypreamble\pxec@DeclareBasicCJKFamily
 \def\pxec@DeclareExtraCJKFamily#1#2#3#4{%
-  \DeclareKanjiFamily{#1}{#2}{}%
+  \pxDeclareKanjiFamily{#1}{#2}%
   \pxec@DeclareBasicCJKShape{#1}{#2}{m}{#3}%
   \pxec@DeclareBasicCJKShape{#1}{#2}{bx}{#4}}
 
@@ -229,6 +229,14 @@
 % It should be t except when other values are needed.
 \let\pxForceFontDeclaration=t
 
+%%<+> \pxDeclareKanjiFamily{<enc>}{<fam>}
+\def\pxDeclareKanjiFamily#1#2{%
+  \expandafter\ifx\csname#1+#2\endcsname\relax
+    \DeclareKanjiFamily{#1}{#2}{}%
+  \else\if e\pxForceFontDeclaration
+    \pxec@error{Font family #1/#2 already defined}\@ehc
+  \fi\fi}
+
 %%<+> \pxDeclareFontShape{<enc>}{<fam>}{<ser>}{<shape>}{<spec>}
 \def\pxDeclareFontShape#1#2#3#4#5{%
   \expandafter\ifx\csname #1/#2/#3/#4\endcsname\relax
@@ -308,10 +316,10 @@
 \@onlypreamble\pxec@DeclareBasicCJKFamilyNE
 \def\pxec@DeclareExtraCJKFamilyNE#1#2#3#4#5#6{%
   \pxBothEncodingsFromName\pxec@y\pxec@t{#1}%
-  \DeclareKanjiFamily{\pxec@y}{#2}{}%
+  \pxDeclareKanjiFamily{\pxec@y}{#2}%
   \pxec@DeclareBasicCJKShape{\pxec@y}{#2}{m}{#3}%
   \pxec@DeclareBasicCJKShape{\pxec@y}{#2}{bx}{#4}%
-  \DeclareKanjiFamily{\pxec@t}{#2}{}%
+  \pxDeclareKanjiFamily{\pxec@t}{#2}%
   \pxec@supdef\pxec@vm{#5}{#3}\pxec@supdef\pxec@vb{#6}{#4}%
   \pxec@DeclareBasicCJKShape{\pxec@t}{#2}{m}{\pxec@vm}%
   \pxec@DeclareBasicCJKShape{\pxec@t}{#2}{bx}{\pxec@vb}}

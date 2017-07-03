@@ -84,6 +84,10 @@
 \DeclareOption{noprefer2004jis}{\pxbb@prefermmivjisfalse}
 \DeclareOption{jis2004}{\pxbb@prefermmivjistrue}
 \DeclareOption{nojis2004}{\pxbb@prefermmivjisfalse}
+\newbool{pxbb@stdjaencoding}
+\bxIfExpToEqualX{\mcdefault}{mc}{}{\pxbb@stdjaencodingtrue}% default
+\DeclareOption{stdjaencoding}{\pxbb@stdjaencodingtrue}
+\DeclareOption{nostdjaencoding}{\pxbb@stdjaencodingfalse}
 % (<lang_id>, +<lang_id>)
 \bxForEachIn\pxbb@cjk@langid@list\do{%
   \DeclareOption{#1}{%
@@ -319,6 +323,14 @@
 \pxDeclareBasicCJKEncoding{J23}{J33}% UniCNS
 \pxDeclareBasicCJKFamily{J23}{!uptchrm-h}{!uptchgt-h}{*gt}{*gt}
 \pxDeclareBasicCJKFamily{J33}{!uptchrm-v}{!uptchgt-v}{*gt}{*gt}
+\pxDeclareBasicCJKEncoding{J24}{J34}% UniJIS2004
+\pxDeclareBasicCJKFamily{J24}{!upjpnrm-h}{!upjpngt-h}{*gt}{*gt}
+\pxDeclareBasicCJKFamily{J34}{!upjpnrm-v}{!upjpngt-v}{*gt}{*gt}
+\begingroup \let\pxForceFontDeclaration=f
+\bxForEachIn{J20,J30,J21,J31,J22,J32,J23,J33,J24,J34}\do{%
+  \pxDeclareExtraCJKFamily{#1}{\mcdefault}{*mc}{*mc}%
+  \pxDeclareExtraCJKFamily{#1}{\gtdefault}{*gt}{*gt}}
+\endgroup
 \fi
 
 %--------------------------------------- add font switch to Babel \extras
@@ -329,7 +341,8 @@
 \bxForEachIn{J20,J24}\do{% all full japanese encodings
   \csdef{pxbb@is@fje/#1}{t}}
 \edef\pxbb@dflt@ja@enc{% default full japanese encoding
-  \ifbool{pxbb@prefermmivjis}{J24}{J20}}
+  \ifbool{pxbb@stdjaencoding}{\cy@encoding}{%else
+    \ifbool{pxbb@prefermmivjis}{J24}{J20}}}
 \def\pxbb@set@full@ja@enc{%
   \edef\pxbb@full@ja@enc{%
     \bxIfcsundefX{pxbb@is@fje/\cy@encoding}%
@@ -367,6 +380,24 @@
 % Expands to the babel language name for <lang_id>.
 \newcommand*\cjklanguagename[1]{%
   \@nameuse{pxbb@langname/#1}}
+
+%--------------------------------------- integrity check
+
+\let\pxbb@tunc@mcdefault\mcdefault
+\AtBeginDocument{%
+  \bxIfExpToEqualX\pxbb@tunc@mcdefault\mcdefault{}{%else
+    \bxIfExpToEqualX\mcdefault{hmc}{%
+      \def\pxbb@tmpa{(You must load 'otf' package before this
+          package.)\MessageBreak}%
+    }{\let\pxbb@tmpa\@empty}%
+    \PackageWarningNoLine\pxbb@pkgname
+     {!!!!!!!!!!!!!!! IMPORTANT NOTICE !!!!!!!!!!!!!!!\MessageBreak
+      Default Japanese family names have been changed\MessageBreak
+      after this package was loaded. The functionality\MessageBreak
+      of the package may be corrupted!\MessageBreak
+      \pxbb@tmpa
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!}}%
+  \let\pxbb@tmpa\relax}
 
 %--------------------------------------- all done
 \endinput
