@@ -316,6 +316,11 @@
 \pxbb@addtoextras@otf@a{cjkmulti}{\UTFM}
 \fi % pxbb@switchfont
 
+%%<*> \pxUTFJ/\UTFJ
+\let\pxUTFJ\UTF
+\AtBeginDocument{%
+  \providecommand*\UTFJ{\pxUTFJ}}
+
 \fi                     %----</otfmulti>
 
 \ifupTeX                %----<*upTeX>
