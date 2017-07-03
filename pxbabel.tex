@@ -3,12 +3,12 @@
 \documentclass[a4paper,uplatex]{jsarticle}
 \usepackage{shortvrb}
 \MakeShortVerb{\|}
-\newcommand{\PkgVersion}{1.1a}
-\newcommand{\PkgDate}{2017/06/19}
+\newcommand{\PkgVersion}{1.1b}
+\newcommand{\PkgDate}{2017/07/03}
 \newcommand{\Pkg}[1]{\textsf{#1}}
 \newcommand{\Meta}[1]{$\langle$\mbox{}#1\mbox{}$\rangle$}
 \newcommand{\Note}{\par\noindent ※}
-\newcommand{\Means}{~：\quad}
+\newcommand{\Means}{：\quad\inhibitglue}
 \providecommand{\upTeX}{u\pTeX}
 \providecommand{\upLaTeX}{u\pLaTeX}
 %-----------------------------------------------------------
@@ -43,7 +43,7 @@
 
 \begin{itemize}
 \item \Pkg{babel}パッケージ
-\item \Pkg{OTF}パッケージ（{\pLaTeX}の場合）
+\item \Pkg{japanese-otf}パッケージ（{\pLaTeX}の場合）
 \end{itemize}
 
 %===========================================================
@@ -95,8 +95,8 @@ v0.9より\Pkg{babel}パッケージと一緒に読み込む方式
 \item |+|\Meta{CJK言語識別子}\Means
 「\Meta{CJK言語識別子}|=+|\Meta{CJK言語識別子}」と同じ。
 
-\item 有効なBabel言語オプションの名前\Means
-その言語オプションの定義ファイルを読み込む。
+\item 有効なBabel言語の名前\Means
+その言語の定義ファイルを読み込む。
 \Note 分離読込モードでもこの機能は有効である。
 
 \item |main=|\Meta{言語名}\Means
@@ -111,7 +111,7 @@ v0.9より\Pkg{babel}パッケージと一緒に読み込む方式
 固定に関する設定を行う。
 有効な値は次の通り：
   \begin{itemize}
-  \item 有効な言語オプション名\Means その言語に固定する。
+  \item 有効なBabel言語名\Means その言語に固定する。
   \item |main|\Means 文書開始時の基底言語に固定する。
   \item |default|\Means キャプション文字列を文書クラスで
   指定されたものから変更しない。
@@ -201,6 +201,8 @@ CJK言語でフォントを切り替える機能を無効にする。
 \begin{itemize}
 \item |\cjklanguagename{|\Meta{CJK言語識別子}|}|\Means
 そのCJK言語に対する言語名。
+\Note 例えば読込時に |schinese=chinesesimp| と指定した場合、
+|\cjklanguagename{schinese}| は |chinesesimp| に展開される。
 \end{itemize}
 
 %===========================================================
@@ -220,7 +222,7 @@ CJK言語でフォントを切り替える機能を無効にする。
 
 \subsection{{\pLaTeX}において}
 
-OTFパッケージの |multi| オプションは{\pLaTeX}において
+\Pkg{japanese-otf}パッケージの |multi| オプションは{\pLaTeX}において
 韓国語・中国語を扱うためのもので、
 これを使うと |\UTFK|／|\UTFC|／|\UTFT| で
 韓国語／中国語(簡体)／中国語(繁体)のフォントを用いて
@@ -234,9 +236,9 @@ Babel言語オプションを生成する。
 |\UTF| の動作を「本来の |\UTF|」／|\UTFK|／|\UTFC|／|\UTFT|
 に切り替える。
 この機能は単独ではあまり有用とはいえないが、
-\Pkg{bxutf8}入力エンコーディング（\Pkg{BXucs}バンドル）
+\Pkg{bxutf8}入力エンコーディング
 と併用してCJK言語のUTF-8直接入力を行う時に有用となる。
-すなわち直接入力されたCJK文字は |\UTF| に変換されるので、
+すなわち直接入力されたCJK文字は |\UTF| に帰着するので、
 結果的に{\upLaTeX}の時と同じように、Babelで切り替えた言語用の
 フォントで出力することが可能となる。
 
