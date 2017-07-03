@@ -23,11 +23,6 @@
 
 %% error messages
 \bxSetModuleName\pxbb@pkgname
-\def\pxbb@eha{\MessageBreak I aborted loading it.}
-\bxPreamble\def\pxbb@err@nobbl{%
-  \PackageError\pxbb@pkgname
-   {babel is not yet loaded, load aborted}%
-   {This package must be loaded after babel package.}}
 \bxPreamble\def\pxbb@warn@nocjk{%
   \PackageWarningNoLine\pxbb@pkgname
    {No multi-CJK support found, font switch disabled\MessageBreak
@@ -35,7 +30,21 @@
 \bxPreamble\def\pxbb@err@noldf#1{%
   \PackageError\pxbb@pkgname
    {Language definition file #1.ldf not found}%
-   {Maybe you misspelled the language option?}}
+   {Maybe you misspelled the language option?\MessageBreak\@ehc}}
+\bxPreamble\def\pxbb@err@nomnl{%
+  \PackageError\pxbb@pkgname
+   {Main language is not specified}%
+   {Here 'japanese' is assumed.\MessageBreak\@ehc}}
+\bxPreamble\def\pxbb@warn@jafam#1{%
+  \PackageWarningNoLine\pxbb@pkgname
+   {!!!!!!!!!!!!!!! IMPORTANT NOTICE !!!!!!!!!!!!!!!\MessageBreak
+    Default Japanese family names have been changed\MessageBreak
+    after this package was loaded. The functionality\MessageBreak
+    of the package may be corrupted!\MessageBreak
+    \if t#1%
+      (You must load 'otf' package before this package.)\MessageBreak
+    \fi
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!}}
 
 %--------------------------------------- Processing package options
 
@@ -89,6 +98,7 @@
 \DeclareOption{stdjaencoding}{\pxbb@stdjaencodingtrue}
 \DeclareOption{nostdjaencoding}{\pxbb@stdjaencodingfalse}
 % (<lang_id>, +<lang_id>)
+\bxPreamble\let\pxbb@last@lang\relax
 \bxForEachIn\pxbb@cjk@langid@list\do{%
   \DeclareOption{#1}{%
     \pxbb@set@lang@spec{#1}{#1}%
@@ -142,6 +152,11 @@
    % in lumped loading, main is the one specified last
    {\let\pxbb@main@lang\pxbb@last@lang}%
 }{}
+% if main is unknown, complain
+\ifx\pxbb@main@lang\relax
+  \pxbb@err@nomnl
+  \letcs\pxbb@main@lang{pxbb@langname/japanese}
+\fi
 
 %% resolve the caption language setting
 \bxIfExpToEqual{\pxbb@caption@lang}{auto}{%then
@@ -383,21 +398,13 @@
 
 %--------------------------------------- integrity check
 
+%% check if \mcdefault is not changed
 \let\pxbb@tunc@mcdefault\mcdefault
 \AtBeginDocument{%
   \bxIfExpToEqualX\pxbb@tunc@mcdefault\mcdefault{}{%else
-    \bxIfExpToEqualX\mcdefault{hmc}{%
-      \def\pxbb@tmpa{(You must load 'otf' package before this
-          package.)\MessageBreak}%
-    }{\let\pxbb@tmpa\@empty}%
-    \PackageWarningNoLine\pxbb@pkgname
-     {!!!!!!!!!!!!!!! IMPORTANT NOTICE !!!!!!!!!!!!!!!\MessageBreak
-      Default Japanese family names have been changed\MessageBreak
-      after this package was loaded. The functionality\MessageBreak
-      of the package may be corrupted!\MessageBreak
-      \pxbb@tmpa
-      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!}}%
-  \let\pxbb@tmpa\relax}
+    \bxIfExpToEqualX\mcdefault{hmc}%
+      {\pxbb@warn@jafam{t}}%
+      {\pxbb@warn@jafam{f}}}}
 
 %--------------------------------------- all done
 \endinput
