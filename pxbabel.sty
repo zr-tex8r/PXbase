@@ -131,6 +131,10 @@
 \@ifpackageloaded{mlutf}{\pxbb@otfmultitrue}{}
 \@ifpackageloaded{pxotf}{\pxbb@otfmultitrue\pxbb@pxotftrue}{}
 
+%% \ifpxbb@otfdeluxe
+\newbool{pxbb@otfdeluxe}
+\@ifpackagewith{otf}{deluxe}{\pxbb@otfdeluxetrue}{}
+
 %% \ifpxbb@babel
 \newbool{pxbb@babel}
 \@ifpackageloaded{babel}{\pxbb@babeltrue}{}
@@ -352,6 +356,110 @@
   \pxDeclareExtraCJKFamily{#1}{\gtdefault}{*gt}{*gt}}
 \endgroup
 \fi
+
+%% declarations for upTeX + otf deluxe CJK fonts
+\ifpxbb@otfdeluxe
+
+% UniJIS
+\pxDeclareBasicCJKShape{J20}{hmc}{l}{!upnmlminl-h}
+\pxDeclareBasicCJKShape{J20}{hmc}{m}{!upnmlminr-h}
+\pxDeclareBasicCJKShape{J20}{hmc}{bx}{!upnmlminb-h}
+\pxDeclareBasicCJKShape{J20}{hgt}{m}{!upnmlgothr-h}
+\pxDeclareBasicCJKShape{J20}{hgt}{bx}{!upnmlgothb-h}
+\pxDeclareBasicCJKShape{J20}{hgt}{eb}{!upnmlgotheb-h}
+\DeclareFontFamily{J20}{mg}{}
+\pxDeclareBasicCJKShape{J20}{mg}{m}{!upnmlmgothr-h}
+
+\pxDeclareBasicCJKShape{J30}{hmc}{l}{!upnmlminl-v}
+\pxDeclareBasicCJKShape{J30}{hmc}{m}{!upnmlminr-v}
+\pxDeclareBasicCJKShape{J30}{hmc}{bx}{!upnmlminb-v}
+\pxDeclareBasicCJKShape{J30}{hgt}{m}{!upnmlgothr-v}
+\pxDeclareBasicCJKShape{J30}{hgt}{bx}{!upnmlgothb-v}
+\pxDeclareBasicCJKShape{J30}{hgt}{eb}{!upnmlgotheb-v}
+\DeclareFontFamily{J30}{mg}{}
+\pxDeclareBasicCJKShape{J30}{mg}{m}{!upnmlmgothr-v}
+
+% UniJIS2004
+\pxDeclareBasicCJKShape{J24}{hmc}{l}{!upnmlminln-h}
+\pxDeclareBasicCJKShape{J24}{hmc}{m}{!upnmlminrn-h}
+\pxDeclareBasicCJKShape{J24}{hmc}{bx}{!upnmlminbn-h}
+\pxDeclareBasicCJKShape{J24}{hgt}{m}{!upnmlgothrn-h}
+\pxDeclareBasicCJKShape{J24}{hgt}{bx}{!upnmlgothbn-h}
+\pxDeclareBasicCJKShape{J24}{hgt}{eb}{!upnmlgothebn-h}
+\DeclareFontFamily{J24}{mg}{}
+\pxDeclareBasicCJKShape{J24}{mg}{m}{!upnmlmgothrn-h}
+
+\pxDeclareBasicCJKShape{J34}{hmc}{l}{!upnmlminln-v}
+\pxDeclareBasicCJKShape{J34}{hmc}{m}{!upnmlminrn-v}
+\pxDeclareBasicCJKShape{J34}{hmc}{bx}{!upnmlminbn-v}
+\pxDeclareBasicCJKShape{J34}{hgt}{m}{!upnmlgothrn-v}
+\pxDeclareBasicCJKShape{J34}{hgt}{bx}{!upnmlgothbn-v}
+\pxDeclareBasicCJKShape{J34}{hgt}{eb}{!upnmlgothebn-v}
+\DeclareFontFamily{J34}{mg}{}
+\pxDeclareBasicCJKShape{J34}{mg}{m}{!upnmlmgothrn-v}
+
+\ifpxbb@otfmulti
+
+% UniKS
+\pxDeclareBasicCJKShape{J21}{hmc}{l}{!utfkml--h}
+\pxDeclareBasicCJKShape{J21}{hmc}{m}{!utfkmr--h}
+\pxDeclareBasicCJKShape{J21}{hmc}{bx}{!utfkmb--h}
+\pxDeclareBasicCJKShape{J21}{hgt}{m}{!utfkgr--h}
+\pxDeclareBasicCJKShape{J21}{hgt}{bx}{!utfkgb--h}
+\pxDeclareBasicCJKShape{J21}{hgt}{eb}{!utfkge--h}
+\DeclareFontFamily{J21}{mg}{}
+\pxDeclareBasicCJKShape{J21}{mg}{m}{!utfkmgr--h}
+
+\pxDeclareBasicCJKShape{J31}{hmc}{l}{!utfkml--v}
+\pxDeclareBasicCJKShape{J31}{hmc}{m}{!utfkmr--v}
+\pxDeclareBasicCJKShape{J31}{hmc}{bx}{!utfkmb--v}
+\pxDeclareBasicCJKShape{J31}{hgt}{m}{!utfkgr--v}
+\pxDeclareBasicCJKShape{J31}{hgt}{bx}{!utfkgb--v}
+\pxDeclareBasicCJKShape{J31}{hgt}{eb}{!utfkge--v}
+\DeclareFontFamily{J31}{mg}{}
+\pxDeclareBasicCJKShape{J31}{mg}{m}{!utfkmgr--v}
+
+% UniGB
+\pxDeclareBasicCJKShape{J22}{hmc}{l}{!utfcml--h}
+\pxDeclareBasicCJKShape{J22}{hmc}{m}{!utfcmr--h}
+\pxDeclareBasicCJKShape{J22}{hmc}{bx}{!utfcmb--h}
+\pxDeclareBasicCJKShape{J22}{hgt}{m}{!utfcgr--h}
+\pxDeclareBasicCJKShape{J22}{hgt}{bx}{!utfcgb--h}
+\pxDeclareBasicCJKShape{J22}{hgt}{eb}{!utfcge--h}
+\DeclareFontFamily{J22}{mg}{}
+\pxDeclareBasicCJKShape{J22}{mg}{m}{!utfcmgr--h}
+
+\pxDeclareBasicCJKShape{J32}{hmc}{l}{!utfcml--v}
+\pxDeclareBasicCJKShape{J32}{hmc}{m}{!utfcmr--v}
+\pxDeclareBasicCJKShape{J32}{hmc}{bx}{!utfcmb--v}
+\pxDeclareBasicCJKShape{J32}{hgt}{m}{!utfcgr--v}
+\pxDeclareBasicCJKShape{J32}{hgt}{bx}{!utfcgb--v}
+\pxDeclareBasicCJKShape{J32}{hgt}{eb}{!utfcge--v}
+\DeclareFontFamily{J32}{mg}{}
+\pxDeclareBasicCJKShape{J32}{mg}{m}{!utfcmgr--v}
+
+% UniCNS
+\pxDeclareBasicCJKShape{J23}{hmc}{l}{!utftml--h}
+\pxDeclareBasicCJKShape{J23}{hmc}{m}{!utftmr--h}
+\pxDeclareBasicCJKShape{J23}{hmc}{bx}{!utftmb--h}
+\pxDeclareBasicCJKShape{J23}{hgt}{m}{!utftgr--h}
+\pxDeclareBasicCJKShape{J23}{hgt}{bx}{!utftgb--h}
+\pxDeclareBasicCJKShape{J23}{hgt}{eb}{!utftge--h}
+\DeclareFontFamily{J23}{mg}{}
+\pxDeclareBasicCJKShape{J23}{mg}{m}{!utftmgr--h}
+
+\pxDeclareBasicCJKShape{J33}{hmc}{l}{!utftml--v}
+\pxDeclareBasicCJKShape{J33}{hmc}{m}{!utftmr--v}
+\pxDeclareBasicCJKShape{J33}{hmc}{bx}{!utftmb--v}
+\pxDeclareBasicCJKShape{J33}{hgt}{m}{!utftgr--v}
+\pxDeclareBasicCJKShape{J33}{hgt}{bx}{!utftgb--v}
+\pxDeclareBasicCJKShape{J33}{hgt}{eb}{!utftge--v}
+\DeclareFontFamily{J33}{mg}{}
+\pxDeclareBasicCJKShape{J33}{mg}{m}{!utftmgr--v}
+
+\fi % pxbb@otfmulti
+
+\fi % pxbb@otfdeluxe
 
 %--------------------------------------- add font switch to Babel \extras
 \ifpxbb@switchfont
