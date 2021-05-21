@@ -97,6 +97,9 @@
 \bxIfExpToEqualX{\mcdefault}{mc}{}{\pxbb@stdjaencodingtrue}% default
 \DeclareOption{stdjaencoding}{\pxbb@stdjaencodingtrue}
 \DeclareOption{nostdjaencoding}{\pxbb@stdjaencodingfalse}
+\newbool{pxbb@textutfmulti}
+\DeclareOption{textutfmulti}{\pxbb@textutfmultitrue}
+\DeclareOption{notextutfmulti}{\pxbb@textutfmultifalse}
 % (<lang_id>, +<lang_id>)
 \bxPreamble\let\pxbb@last@lang\relax
 \bxForEachIn\pxbb@cjk@langid@list\do{%
@@ -399,6 +402,7 @@
 \pxDeclareBasicCJKShape{J34}{mg}{m}{!upnmlmgothrn-v}
 
 \ifpxbb@otfmulti
+\ifpxbb@textutfmulti
 
 % UniKS
 \pxDeclareBasicCJKShape{J21}{hmc}{l}{!utfkml--h}
@@ -457,6 +461,7 @@
 \DeclareFontFamily{J33}{mg}{}
 \pxDeclareBasicCJKShape{J33}{mg}{m}{!utftmgr--v}
 
+\fi % pxbb@textutfmulti
 \fi % pxbb@otfmulti
 
 \fi % pxbb@otfdeluxe
