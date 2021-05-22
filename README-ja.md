@@ -165,6 +165,13 @@ upLaTeX の場合：
 更新履歴
 --------
 
+  * Version 1.2  〈2021/05/22〉
+      - pxbabel: CJK 言語のフォント切替を japanese-otf で多ウェイト拡張
+        （`deluxe`）を指定した場合に対応させた。
+      - pxbabel: (試験的) `(no)forcedeluxemulti` オプションを追加。
+        `forcedeluxemulti` を指定すると、さらに多言語拡張（`multi`）を
+        行った場合の日本語以外のフォントにも適用される。
+
   * Version 1.1b 〈2017/07/03〉
       - upLaTeX で japanese-otf と併用した場合に対応。
       - バグ修正。

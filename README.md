@@ -67,6 +67,7 @@ README-ja.md).
 Revision History
 ----------------
 
+  * Version 1.2  〈2021/05/22〉
   * Version 1.1b 〈2017/07/03〉
   * Version 1.1a 〈2017/06/19〉
   * Version 1.1  〈2017/05/29〉
