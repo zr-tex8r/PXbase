@@ -165,6 +165,12 @@ upLaTeX の場合：
 更新履歴
 --------
 
+  * Version 1.3  〈2021/05/31〉
+      - pxbabel: japanese-otf のコード入力命令（`\UTF` 等）について、
+        非標準の和文エンコーディングの適用時でも動作するようにパッチを
+        適用する。
+      - pxbabel: (試験的) `(no)patchutfcmds` オプションを追加。
+
   * Version 1.2  〈2021/05/22〉
       - pxbabel: CJK 言語のフォント切替を japanese-otf で多ウェイト拡張
         （`deluxe`）を指定した場合に対応させた。

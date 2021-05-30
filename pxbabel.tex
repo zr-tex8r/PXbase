@@ -1,6 +1,7 @@
 % 文字コードは UTF-8
 % uplatex で組版する
 \documentclass[uplatex,dvipdfmx,a4paper]{jsarticle}
+\renewcommand{\headfont}{\gtfamily\romanseries{sbc}\sffamily}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern,textcomp}
 \usepackage{color}
@@ -15,8 +16,8 @@
 \bxtexlogoimport{*}
 \usepackage{shortvrb}
 \MakeShortVerb{\|}
-\newcommand{\PkgVersion}{1.2}
-\newcommand{\PkgDate}{2021/05/22}
+\newcommand{\PkgVersion}{1.3}
+\newcommand{\PkgDate}{2021/05/31}
 \newcommand{\Pkg}[1]{\textsf{#1}}
 \newcommand{\Meta}[1]{$\langle$\mbox{}#1\mbox{}$\rangle$}
 \newcommand{\Note}{\par\noindent ※}
@@ -40,7 +41,7 @@
 \label{sec:Overview}
 
 {(u)\pLaTeX}における日本語・簡体字中国語・繁体字中国語・
-韓国語（以下この4つを「CJK言語」と総称する）の間の
+韓国語の間の
 「和文（CJK）フォント」の切り替えをBabelのインタフェースを
 用いて行えるようにする。
 
@@ -63,6 +64,9 @@
 \label{ssec:terminology}
 
 \begin{itemize}
+\item CJK言語\Means
+「日本語」「簡体字中国語」「繁体字中国語」「韓国語」の総称。%
+\footnote{普通の意味で「言語」の区別といえるかは問題にしない。}
 \item CJK言語識別子\Means
 本パッケージにおいてCJK言語を指し示す、以下の文字列。
   \begin{itemize}
@@ -130,12 +134,11 @@ CJK言語を非仮想言語として扱い、実際に使用するBabelの言語
 
 \item Babelの有効な言語名\Means
 その言語の定義ファイルを読み込む。
-\Note 現状では、分離読込モードでもこの機能は有効であるが、
-確実に動作させるのが困難であるため、将来的に
-「分離読込モードではCJK言語のみが指定可能
-\footnote{つまり、CJK言語以外は\texttt{babel}のオプションとして
-指定する必要がある。}」
-となる可能性がある。
+\Note 分離読込モードでの非CJK言語の読込については
+確実に動作させるのが困難であるため、
+1.3版において\textbf{非推奨}の扱いとする。
+すなわち、分離読込モードではCJK言語のみが指定可能となり、
+CJK言語以外は\texttt{babel}のオプションとして指定する必要がある。
 
 \item |main=|\Meta{言語名}\Means
 文書開始時に有効となる基底言語を、言語名
@@ -159,8 +162,7 @@ CJK言語を非仮想言語として扱い、実際に使用するBabelの言語
   （Babelの既定動作。）
   \item |auto|（既定値）\Means
   文書開始時の基底言語が
-  「言語オプション定義ファイルの読込を伴わないCJK言語」
-  （仮に「仮想言語設定」と呼ぶ）の場合は |default|、
+  仮想言語の場合は |default|、
   それ以外は |switch|。
   \end{itemize}
 \Note 詳細は\ref{sec:Caption-Lang}節を参照。
@@ -176,7 +178,18 @@ CJK言語を非仮想言語として扱い、実際に使用するBabelの言語
 CJK言語でフォントを切り替える機能を有効にする。
 
 \item |noswitchfont|\Means
-|switchfont| の否定。
+|switchfont|の否定。
+
+\item |stdjaencoding|\Means
+入力言語が日本語の場合には{\upLaTeX}標準の「和文エンコーディング」を
+適用する。
+\Note 詳細は\ref{ssec:switch-jafont}節を参照。
+{\upLaTeX}でのみ意味をもつ。
+
+\item |nostdjaencoding|（既定）\Means
+|nostdjaencoding|の否定。
+\Note \Pkg{japanese-otf}パッケージが読込済の場合には
+既定が|stdjaencoding|に変更される。
 
 \item |forcedeluxemulti|\Means
 {\upLaTeX}で\Pkg{japanese-otf}パッケージを
@@ -191,6 +204,16 @@ CJK言語でフォントを切り替える機能を有効にする。
 日本語以外のテキストについて多ウェイト設定を無効にする。
 \Note 約物の周りの空き調整が正常に行われる。
 \Note (|no|)|forcedeluxemulti|は試験的な機能であり、
+将来的に廃止される可能性がある。
+
+\item |patchutfcmds|（既定値）\Means
+\Pkg{japanese-otf}パッケージのコード入力命令（\XS|\UTF|命令等）
+について、「非標準の和文エンコーディングが適用される場合にも
+正常動作する」ようにパッチを適用する。
+
+\item |nopatchutfcmds|\Means
+|patchutfcmds|の否定。
+\Note (|no|)|patchutfcmds|は試験的な機能であり、
 将来的に廃止される可能性がある。
 \end{itemize}
 
@@ -223,17 +246,31 @@ CJK言語でフォントを切り替える機能を有効にする。
 
 \begin{itemize}
 \item |\cjklanguagename{|\Meta{CJK言語識別子}|}|\Means
-そのCJK言語に対する言語名。
+そのCJK言語に対するBabel言語名。
+\Note 完全展開可能である。
 \Note 例えば、パッケージオプションで|schinese=chinesesimp|と指定した場合、
 |\cjklanguagename|\hspace{0pt}|{schinese}|\XS は
 「|chinesesimp|」に展開される。
+
+\item |\UTFJ{|\Meta{Unicode符号値}|}|\Means
+常に「本来の\XS|\UTF|命令」の動作をする。
+\Note 本パッケージで|switchfont|が有効で、かつ\Pkg{japanese-otf}が
+|multi|付で読み込まれている場合に定義される。%
+\footnote{ただし、|\UTFJ|命令は文書本体開始時に定義されることに注意。
+プリアンブルでは|\UTF|命令の切替はまだ発生しないので、
+日本語用には|\UTF|命令を使えばよい。}%
+この場合、入力言語が日本語以外のCJK言語のときに\XS|\UTF|命令の動作が
+他言語用（|\UTFK|等）に切り替わるので、本来の日本語用の\XS|\UTF|命令が
+必要なときには\XS|\UTFJ|を利用すればよい。
+\Note 詳細は\ref{ssec:switch-utffont}節を参照。
+
 \end{itemize}
 
 %===========================================================
 \section{キャプション言語の固定に関する設定}
 \label{sec:Caption-Lang}
 
-Babelでは言語の切替に関して、入力言語のみを切り替えるもの
+Babelにおける言語切替の指定は大別すると、入力言語のみを切り替えるもの
 （|\foreignlanguage|命令、|otherlanguage*|\XS 環境）
 と基底言語を切り替えるもの
 （|\selectlanguage|命令、|otherlanguage|環境）
@@ -241,16 +278,18 @@ Babelでは言語の切替に関して、入力言語のみを切り替えるも
 （|caption=switch|指定時と同じ）。
 
 ところが、実際の言語定義を伴わない仮想言語においては、
-キャプション文字列の設定は働かない。
+キャプション文字列の設定は行われない。
 このため、基底言語を仮想言語に切り替えた場合には
-キャプション言語が正しくない事態が生じることになる。%
-\footnote{ただし「文書開始時以外に基底言語を仮想言語に切り替える」
+キャプション言語が正しくない事態が生じえる。%
+\footnote{ただし「文書開始時以外に（入力言語でなく）
+  基底言語を仮想言語に切り替える」
   ことをしなければ問題は起こらない。
   特に、「日本語の文書クラスを用いて、かつBabelにおいて
   仮想言語扱いの日本語を文書全体で基底言語にする」
-  場合は、キャプションは文書クラスで定めたものに固定される。}
+  場合は、キャプションは文書クラスで定めたものに固定される。
+  多くの場合これは好都合な動作だろう。}
 これによる混乱を避けるために、|caption|オプションによる
-キャプション言語の固定が有用である場合がある。
+キャプション言語の固定が有用かもしれない。
 
 特に、「Babelによるキャプション文字列の変更を抑止して文書クラスで
 定めた文字列を常に有効にしたい」という場合は、
@@ -260,12 +299,12 @@ Babelでは言語の切替に関して、入力言語のみを切り替えるも
 （Babelの既定動作に相当する|switch|ではなく）
 |default|としている。
 
-\Note 0.9版より前は常に|default|を既定値としていた。
-ゆえに、|caption|（および(|no|)|switchcaption|）オプション
-指定がなく基底言語が仮想言語でない場合の|caption|設定は、
-0.9版より前は|default|、以降は|switch|と異なることになる。
-仮想言語設定でない場合は|default|にする必然性が少ないので、
+\Note 0.9版より前は常に|default|を既定値としていが、
+既定言語が仮想言語でない場合は|default|にする必然性が少ないため、
 Babelの既定動作に合わせる目的で仕様が変更された。
+ゆえに、|caption|（および(|no|)|switchcaption|）オプション
+指定がなくかつ基底言語が仮想言語でない場合の|caption|設定は、
+0.9版より前は|default|、以降は|switch|と異なることになる。
 
 \Note \Pkg{bxbase}パッケージの\XS|\fixcaptiopnlanguage|命令による
 キャプション言語固定の設定は、常に本パッケージでの設定より優先される。
@@ -276,7 +315,10 @@ Babelの既定動作に合わせる目的で仕様が変更された。
 \section{CJKフォント切替機能の原理}
 \label{sec:Switch-Font}
 
-\subsection{{\upLaTeX}において}
+次の2つの仕組を用意している。
+
+\subsection{標準和文フォントの切替（{\upLaTeX}のみ）}
+\label{ssec:switch-jafont}
 
 {\upTeX}は標準で、CJK言語の{\TeX}フォント（和文TFM）を用意している。
 本パッケージはBabelにおいてCJK言語の切替処理（|\extras...|\XS マクロ）
@@ -288,30 +330,53 @@ Babelの既定動作に合わせる目的で仕様が変更された。
 %フォントの切替のみをする簡易の言語オプション（仮想言語設定）
 %をその場で生成する。
 
-\subsection{{\pLaTeX}において}
+\Note 標準和文フォントの切替は、内部的には「和文エンコーディング」
+を切り替えることで実現している。
+ところが、標準以外の「和文エンコーディング」が指定されている状態では、
+他パッケージの（和文フォントに関する）機能に不具合が生じる可能性がある。
+これは日本語以外のCJK言語を使う場合にはある程度は仕方がないであろう。
+ただし、現状の既定では入力言語が日本語である場合にも非標準の
+「和文エンコーディング」が適用される。%
+\footnote{標準の横組／縦組の「和文エンコーディング」は|JY2|/|JT2|で
+  あるが、フォント切替を有効にして入力言語を日本語にした場合には
+  |J20|/|J30|（|jis2004|有効時には|J24|/|J34|）が適用される。}%
+|stdjaencoding| オプションを指定すると
+「入力言語が日本語の場合には標準の和文エンコーディングを使う」
+動作に切り替わるので、不具合が回避できる可能性がある。%
+\footnote{最近の{\upLaTeX}の標準設定では、実は非標準の
+「和文エンコーディング」を使うメリットがほぼなくなっている。
+従って「常に|stdjaencoding|を指定する」という方針でも構わない。
+現在、|stdjaencoding|の既定値の変更を検討している。}
 
-\Pkg{japanese-otf}パッケージの|multi|オプションは{\pLaTeX}において
+\subsection{{\textbackslash UTF}命令に対する調整}
+\label{ssec:switch-utffont}
+
+\Pkg{japanese-otf}パッケージの|multi|オプションは
 韓国語・中国語を扱うためのもので、
-これを使うと\XS|\UTFK|／|\UTFC|／|\UTFT|の各命令で
-韓国語／簡体字中国語／繁体字中国語のフォントを用いて
-文字が出力される
-（これらの命令の引数は\XS|\UTF|と同じで16進表記のUnicode符号値）。
+これを有効にすると\XS|\UTFK|／|\UTFC|／|\UTFT|の各命令
+\footnote{\XS|\UTF|と同様に、これらの命令の引数にはUnicode符号値を
+  16進表記で指定する。}%
+で韓国語／簡体字中国語／繁体字中国語のフォントを用いて
+文字を出力することができる。
 
-{\pLaTeX}における本パッケージの動作は次のようである。
-%まず、{\upLaTeX}の場合と同じようにCJK言語のための
-%Babel言語オプションを生成する。
-Babelの言語がCJK言語に切り替わった場合には、
-|\UTF|の動作を「本来の\XS|\UTF|」／|\UTFK|／|\UTFC|／|\UTFT|
-に切り替える。
+本パッケージを読み込むと、
+Babelの入力言語がCJK言語に切り替わった場合に言語に応じて\XS
+|\UTF|の動作を「本来の\XS|\UTF|」\<／|\UTFK|／|\UTFC|／|\UTFT|
+の何れかに切り替えるようになる。
+また、「本来の\XS|\UTF|」の動作をする命令\XS|\UTFJ|が提供されるので、
+入力言語が日本語以外のときに日本語の文字を入力したい
+場合には\XS|\UTFJ|を利用すればよい。
+
 この機能は単独ではあまり有用とはいえないが、
-\Pkg{bxutf8}入力エンコーディング
+{\pLaTeX}において\Pkg{bxutf8}入力エンコーディング
 と併用してCJK言語のUTF-8直接入力を行う時に有用となる。
-すなわち直接入力されたCJK文字は\XS|\UTF|に帰着するので、
-結果的に{\upLaTeX}の時と同じように、Babelで切り替えた言語用の
-フォントで出力することが可能となる。
+すなわち、直接入力されたCJK文字は\XS|\UTF|に帰着するので、
+結果的に{\upLaTeX}の時と同じように、現在の入力言語用の
+フォントで出力されることになる。
 
-\Note ただし、この機構には、
-「JIS X~0208にある文字はそもそも\XS|\UTF|に変換されないので
+\Note ただし、この方策は、
+「（{\pLaTeX}では）
+JIS X~0208にある文字はそもそも\XS|\UTF|に変換されないので
 常に日本語フォントで出力されてしまう」
 という欠点をもつ。
 これを解決するには\Pkg{pxfltsrc}パッケージ等の機能を用いて
