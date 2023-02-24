@@ -168,13 +168,13 @@
 % The feature 'switchfont' requires multi-CJK support.
 \ifpxbb@switchfont
   \ifpxbb@otfmulti\else
-    \ifupTeX\else
+    \ifnativeupTeX\else
       \pxbb@warn@nocjk
       \pxbb@switchfontfalse
 \fi\fi\fi
 % Check if 'patchutfcmds' is available.
 \if \ifpxbb@switchfont
-      \ifupTeX
+      \ifnativeupTeX
         \ifpxbb@otf
           \ifx\patchcmd\@undefined F\else T\fi
         \else F\fi
@@ -184,10 +184,10 @@
 \fi
 % Check if 'deluxemulti' is available.
 \ifnum\pxbb@deluxemulti=\pxbb@deluxemulti@@false\else
-  \ifupTeX\else
+  \ifnativeupTeX\else
     \PackageWarningNoLine\pxbb@pkgname
      {Option 'forcedeluxemulti' is invalid, since\MessageBreak
-      the engine is not upTeX}
+      the engine is not upLaTeX}
     \let\pxbb@deluxemulti\pxbb@deluxemulti@@false
   \fi
   \ifpxbb@otfmulti\else
@@ -378,7 +378,7 @@
 
 \fi                     %----</otfmulti>
 
-\ifupTeX                %----<*upTeX>
+\ifnativeupTeX          %----<*upTeX>
 
 %% preparations
 \bxRequireDefinition{pxbasenc}
