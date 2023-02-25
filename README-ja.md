@@ -121,6 +121,7 @@ pxbabel パッケージ ― Babel の機構に基づく CJK 間のフォント�
 
 詳細についてはマニュアル `pxbabel.pdf` を参照されたい。
 
+
 upkcat パッケージ ― 文字指定による kcatcode 操作
 -------------------------------------------------
 
@@ -141,16 +142,17 @@ upkcat パッケージ ― 文字指定による kcatcode 操作
 ### 前提環境
 
   * TeX フォーマット： plain、LaTeX
-  * TeX エンジン： upTeX（派生を含む）
+  * TeX エンジン： upTeX（派生を含む）  
+    ※内部漢字コードがUnicode（uptex）で動作している必要がある。
   * DVI ウェア（DVI 出力時）： 不問
 
 ### パッケージ読込
 
-plain upTeX の場合：
+plain TeX の場合：
 
     \input upkcat.sty
 
-upLaTeX の場合：
+LaTeX の場合：
 
     \usepackage{upkcat}
 
@@ -164,6 +166,15 @@ upLaTeX の場合：
 
 更新履歴
 --------
+
+  * Version 1.4  〈2023/02/25〉
+      - pxbasenc: `\pxBDHookEncSwitchOTF` の機能を最新の japanese-otf
+        に対応させる。
+      - pxbabel: 前項改修により `(no)patchutfcmds` の機能は不要になった
+        ので削除。
+      - pxbabel: `forcedeluxemulti` の機能で、新たに japanese-otf の
+        「中国語・韓国語のテキスト用の多ウェイトTFM」を利用する選択肢を
+        追加して `deluxemulti` オプションとして再編した。
 
   * Version 1.3  〈2021/05/31〉
       - pxbabel: japanese-otf のコード入力命令（`\UTF` 等）について、

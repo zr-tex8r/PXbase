@@ -4,7 +4,7 @@
 
 %% file declaration
 \NeedsTeXFormat{pLaTeX2e}
-\ProvidesFile{pxbasenc.def}[2021/05/31 v1.3 PX encoding library]
+\ProvidesFile{pxbasenc.def}[2023/02/25 v1.4 PX encoding library]
 \def\pxec@pkgname{PXbase} % bundle name
 
 %% code guards

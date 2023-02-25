@@ -16,13 +16,15 @@
 \bxtexlogoimport{*}
 \usepackage{shortvrb}
 \MakeShortVerb{\|}
-\newcommand{\PkgVersion}{1.3}
-\newcommand{\PkgDate}{2021/05/31}
+\usepackage[verb]{bxghost}
+\newcommand{\PkgVersion}{1.4}
+\newcommand{\PkgDate}{2023/02/25}
 \newcommand{\Pkg}[1]{\textsf{#1}}
 \newcommand{\Meta}[1]{$\langle$\mbox{}#1\mbox{}$\rangle$}
 \newcommand{\Note}{\par\noindent ※}
 \newcommand{\Means}{：\quad\inhibitglue}
 \newcommand{\XS}{\hspace{\xkanjiskip}}
+\newcommand{\Strong}[1]{{\headfont#1}}
 %-----------------------------------------------------------
 \DeclareFontShape{JY2}{mc}{m}{ko}{<->s*[.924871]upkorrm-h}{}
 \DeclareFontShape{JT2}{mc}{m}{ko}{<->s*[.924871]upkorrm-v}{}
@@ -82,8 +84,11 @@ Babelで指定する（|\foreignlanguage| 等の引数にする）
 同じ（例えば日本語の「言語名」は|japanese|）であるが、
 そうでない設定も可能である。
 \item 仮想言語\Means
-Babelの言語オプション定義ファイル（|*.ldf|）の読込を伴わない
-言語のこと。
+本パッケージの動作により自動的に定義される、通常の言語オプション定義（キャプション文字列）を伴わないBabel言語のこと。\footnote{%
+つまり、言語オプション定義ファイル（|*.ldf|）の読込により定義される
+Babel言語は仮想言語ではない。
+最近のBabelでは「|ini|ファイルにより言語を定義する」という機能があるが、
+そのように定義されたBabel言語も仮想言語ではない。}
 本パッケージではCJK言語を仮想言語として扱えるため、
 各言語の定義ファイルを用意する必要がない。
 \Note CJK言語を仮想言語にせず定義ファイルを利用することも可能。
@@ -94,8 +99,8 @@ Babelの言語オプション定義ファイル（|*.ldf|）の読込を伴わ�
 \label{sec:Loading}
 
 0.9版より\Pkg{babel}パッケージと一緒に読み込む方式
-（一括読込モード）をサポートした。
-従来通り、別個に読み込む方式（分離読込モード）も可能である。
+（\Strong{一括読込モード}）をサポートした。
+従来通り、別個に読み込む方式（\Strong{分離読込モード}）も可能である。
 どちらであるかは、\Pkg{pxbabel}読込時に\Pkg{babel}が読込済か
 どうかで判別する。
 
@@ -116,7 +121,7 @@ Babelの言語オプション定義ファイル（|*.ldf|）の読込を伴わ�
 \item \Meta{CJK言語識別子}|=|\Meta{言語名}\Means
 CJK言語を仮想言語として扱い、実際に使用するBabelの言語名を指定する。
 \Note 詳細は\ref{sec:Commands}節を参照。
-\Note 言語名の既定値はCJK言語識別子と同一名。
+\Note 既定で用いられる言語名はCJK言語識別子と同一の文字列である。
 
 \item \Meta{CJK言語識別子}\Means
 「\Meta{CJK言語識別子}|=|\Meta{CJK言語識別子}」と同じ。
@@ -136,7 +141,7 @@ CJK言語を非仮想言語として扱い、実際に使用するBabelの言語
 その言語の定義ファイルを読み込む。
 \Note 分離読込モードでの非CJK言語の読込については
 確実に動作させるのが困難であるため、
-1.3版において\textbf{非推奨}の扱いとする。
+1.3版において\Strong{非推奨}の扱いとする。
 すなわち、分離読込モードではCJK言語のみが指定可能となり、
 CJK言語以外は\texttt{babel}のオプションとして指定する必要がある。
 
@@ -146,8 +151,9 @@ CJK言語以外は\texttt{babel}のオプションとして指定する必要が
 用いる場合、\texttt{main}に指定するのは言語名の方であることに注意。}%
 で指定する。
 \Note |main|の指定がない場合、
-分離読込モードでは\Pkg{babel}で最後に読まれた言語が基底言語になる。
-一括読込モードでは\Pkg{pxbabel}で最後に読まれた言語が基底言語になる。
+分離読込モードでは\Pkg{babel}の読込時に基底言語であったものが
+そのまま基底言語になる。
+一括読込モードでは\Pkg{pxbabel}で最後に読み込まれた言語が基底言語になる。
 
 \item |caption=|\Meta{値}\Means
 キャプション言語（キャプションや日付の文字列で使われる言語）の
@@ -191,30 +197,44 @@ CJK言語でフォントを切り替える機能を有効にする。
 \Note \Pkg{japanese-otf}パッケージが読込済の場合には
 既定が|stdjaencoding|に変更される。
 
-\item |forcedeluxemulti|\Means
+\item |deluxemulti=|\Meta{値}\Means
 {\upLaTeX}で\Pkg{japanese-otf}パッケージを
 |deluxe|オプションおよび|multi|オプション付で使用している
 （|\UTFK|／|\UTFC|／|\UTFT|が多ウェイトで使える）ときに、
-日本語以外のテキストについても多ウェイトの設定を有効にする。
-\Note 本来は\XS|\UTFK|／|\UTFC|／|\UTFT|入力用である{\TeX}フォント
-（和文TFM）を使うため、約物の周りの空き調整が無効になる。
+日本語以外のCJK言語のテキストについても多ウェイトの設定を
+有効にするか否か。
+  \begin{itemize}
+  \item |new|／|true|\Means
+    {\TeX} Live 2022以降で利用可能\footnote{%
+      当該の論理フォントが利用可能でない環境でこの設定を使用すると、
+      {\LaTeX}またはDVIウェアの実行でエラーが発生する。}%
+    になっている、中国語・韓国語のテキスト用の多ウェイトの
+    論理フォントを使用する。
+  \item |old|\Means
+      本来は\XS|\UTFK|／|\UTFC|／|\UTFT|入力用である
+      “単純なメトリック”の論理フォントを使用する。
+      約物の周りの空き調整が無効になるという欠点がある。
+  \item |false|（既定値）\Means
+    日本語以外のCJK言語は多ウェイトにしない。
+  \end{itemize}
 
-\item |noforcedeluxemulti|（既定値）\Means
-|forcedeluxemulti|の否定。
-日本語以外のテキストについて多ウェイト設定を無効にする。
-\Note 約物の周りの空き調整が正常に行われる。
-\Note (|no|)|forcedeluxemulti|は試験的な機能であり、
-将来的に廃止される可能性がある。
+\item |deluxemulti|\Means
+|deluxemulti=new|と同じ。
+\item |nodeluxemulti|\Means
+|deluxemulti=false|と同じ。
 
-\item |patchutfcmds|（既定値）\Means
-\Pkg{japanese-otf}パッケージのコード入力命令（\XS|\UTF|命令等）
-について、「非標準の和文エンコーディングが適用される場合にも
-正常動作する」ようにパッチを適用する。
+\item |forcedeluxemulti|\Means
+|deluxemulti=old|と同じ。
+\item |noforcedeluxemulti|\Means
+|deluxemulti=false|と同じ。
+\Note (|no|)|forcedeluxemulti|は\Strong{非推奨}であり、
+将来に廃止される予定である。
 
-\item |nopatchutfcmds|\Means
-|patchutfcmds|の否定。
-\Note (|no|)|patchutfcmds|は試験的な機能であり、
-将来的に廃止される可能性がある。
+\item (|no|)|patchutfcmds|\Means
+このオプションは何もしない。
+\Note 1.3版で試験的に設けられた機能が1.4版で削除された。
+オプション自体も将来に廃止される予定であり、
+このオプションの指定自体を\Strong{非推奨}とする。
 \end{itemize}
 
 %===========================================================
@@ -287,7 +307,7 @@ Babelにおける言語切替の指定は大別すると、入力言語のみを
   特に、「日本語の文書クラスを用いて、かつBabelにおいて
   仮想言語扱いの日本語を文書全体で基底言語にする」
   場合は、キャプションは文書クラスで定めたものに固定される。
-  多くの場合これは好都合な動作だろう。}
+  多くの場合これは好都合な動作だろう。}%
 これによる混乱を避けるために、|caption|オプションによる
 キャプション言語の固定が有用かもしれない。
 
