@@ -495,20 +495,29 @@
 % \UTF & \CID require the current encoding to be the standard one, thus
 % they won't work well along with packages that change Japanese encoding
 % (pxfontenc, pxbabel, etc.). This patch resolves this problem.
-\providecommand*\pxBDHookEncSwitchOTF{\pxec@bdhook@encswotf@do}
-\@onlypreamble\pxec@bdhook@encswotf@do
-\def\pxec@bdhook@encswotf@do{%
-  \AtBeginDocument{%
+\@onlypreamble\pxBDHookEncSwitchOTF
+\providecommand*\pxBDHookEncSwitchOTF{%
+  \global\let\pxBDHookEncSwitchOTF\@empty % nullify
+  \AtBeginDocument{\pxec@encswotf@do}}
+\@onlypreamble\pxEncSwitchOTF
+\providecommand*\pxEncSwitchOTF{%
+  \pxec@encswotf@do}
+\@onlypreamble\pxec@encswotf@do
+\def\pxec@encswotf@do{%
+    \let\pxec@JYn\@undefined
     \@ifpackageloaded{otf}{\let\pxec@JYn\otf@JYn}{}%
     \@ifpackageloaded{utf}{\let\pxec@JYn\utf@JYn}{}%
     \ifx\pxec@JYn\@undefined\else
+      \let\pxec@encswotf@do\relax
       % hook at the \set@character invocation, so that encoding will
       % be forced to be the standard one
       \long\def\set@character{% \long, as the original is
         \afterassignment\pxec@put@character\@tempcnta}%
       \def\pxec@put@character{\kanjiencoding{\pxec@JYn}\put@character}%
+      \long\def\set@character@{%
+        \afterassignment\pxec@put@character@\@tempcnta}%
+      \def\pxec@put@character@{\kanjiencoding{\pxec@JYn}\put@character@}%
     \fi}%
-  \let\pxBDHookEncSwitchOTF\@empty}% nullify
 
 %--------------------------------------- all done
 \pxec@restore@codes
