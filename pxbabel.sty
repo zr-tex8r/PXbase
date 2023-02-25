@@ -148,13 +148,10 @@
 
 %% \ifpxbb@otf
 %% \ifpxbb@otfmulti
-%% \ifpxbb@pxotf
 \newbool{pxbb@otf}
 \newbool{pxbb@otfmulti}
-\newbool{pxbb@pxotf}
 \@ifpackageloaded{otf}{\pxbb@otftrue}{}
 \@ifpackageloaded{mlutf}{\pxbb@otfmultitrue}{}
-\@ifpackageloaded{pxotf}{\pxbb@otfmultitrue\pxbb@pxotftrue}{}
 
 %% \ifpxbb@otfdeluxe
 \newbool{pxbb@otfdeluxe}
@@ -173,14 +170,9 @@
       \pxbb@switchfontfalse
 \fi\fi\fi
 % Check if 'patchutfcmds' is available.
-\if \ifpxbb@switchfont
-      \ifnativeupTeX
-        \ifpxbb@otf
-          \ifx\patchcmd\@undefined F\else T\fi
-        \else F\fi
-      \else F\fi
-    \else F\fi F%
-  \pxbb@patchutfcmdsfalse
+\ifpxbb@patchutfcmds
+  \PackageWarningNoLine\pxbb@pkgname
+   {Option 'patchutfcmds' is abolished}
 \fi
 % Check if 'deluxemulti' is available.
 \ifnum\pxbb@deluxemulti=\pxbb@deluxemulti@@false\else
@@ -385,7 +377,6 @@
 \pxBDHookEncSwitchOTF
 
 %% declarations for upTeX standatd CJK fonts
-\ifpxbb@pxotf\else
 \pxDeclareBasicCJKEncoding{J20}{J30}% UniJIS
 \pxDeclareBasicCJKFamily{J20}{!upjpnrm-h}{!upjpngt-h}{*gt}{*gt}
 \pxDeclareBasicCJKFamily{J30}{!upjpnrm-v}{!upjpngt-v}{*gt}{*gt}
@@ -406,7 +397,6 @@
   \pxDeclareExtraCJKFamily{#1}{\mcdefault}{*mc}{*mc}%
   \pxDeclareExtraCJKFamily{#1}{\gtdefault}{*gt}{*gt}}
 \endgroup
-\fi
 
 %% declarations for upTeX + otf deluxe CJK fonts
 \ifpxbb@otfdeluxe
@@ -612,33 +602,6 @@
 
 \fi                     %----</upTeX>
 
-%--------------------------------------- Patch to '\UTF' etc.
-\ifpxbb@patchutfcmds
-
-%% \pxbb@set@encoding
-\edef\pxbb@set@encoding{%
-  \noexpand\iftdir \noexpand\kanjiencoding{\cy@encoding}%
-  \noexpand\else   \noexpand\kanjiencoding{\ct@encoding}%
-  \noexpand\fi
-}
-
-%% apply the patch
-\@for\pxbb@tmpa:={%
-  UTF,UTFK,UTFC,UTFT,UTFM,CID,CIDK,CIDC,CIDT%
-}\do{%
-  \ifcsdef{\pxbb@tmpa\space}{%then
-    \expandafter\patchcmd\csname \pxbb@tmpa\space\endcsname{%from
-      \begingroup\edef\reserved@a
-    }{%to
-      \begingroup\pxbb@set@encoding\edef\reserved@a
-    }{}{%failure
-      \PackageWarningNoLine\pxbb@pkgname
-       {Cannot patch to '\@backslashchar\pxbb@tmpa_'}%
-    }%
-  }{}%
-}
-
-\fi
 %--------------------------------------- Other user commands
 
 %%<*> \cjklanguagename{<lang_id>}
