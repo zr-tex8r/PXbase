@@ -101,7 +101,7 @@
 \bxIfExpToEqualX{\mcdefault}{mc}{}{\pxbb@stdjaencodingtrue}% default
 \DeclareOption{stdjaencoding}{\pxbb@stdjaencodingtrue}
 \DeclareOption{nostdjaencoding}{\pxbb@stdjaencodingfalse}
-\newbool{pxbb@patchutfcmds}\pxbb@patchutfcmdstrue
+\newbool{pxbb@patchutfcmds}
 \DeclareOption{patchutfcmds}{\pxbb@patchutfcmdstrue}
 \DeclareOption{nopatchutfcmds}{\pxbb@patchutfcmdsfalse}
 \chardef\pxbb@deluxemulti@@false=0
@@ -375,6 +375,7 @@
 %% preparations
 \bxRequireDefinition{pxbasenc}
 \pxBDHookEncSwitchOTF
+\pxEncSwitchOTF
 
 %% declarations for upTeX standatd CJK fonts
 \pxDeclareBasicCJKEncoding{J20}{J30}% UniJIS
